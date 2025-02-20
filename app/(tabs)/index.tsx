@@ -1,10 +1,12 @@
-import { View, Text, StyleSheet, ScrollView } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, useWindowDimensions } from 'react-native';
 import { useColorScheme } from 'react-native';
 import Colors from '@/constants/Colors';
 
 export default function BalancesScreen() {
   const colorScheme = useColorScheme();
   const colors = Colors[colorScheme ?? 'light'];
+  const { width } = useWindowDimensions();
+  const isDesktop = width >= 768;
 
   return (
     <ScrollView style={[styles.container, { backgroundColor: colors.background }]}>
@@ -12,8 +14,8 @@ export default function BalancesScreen() {
         <Text style={[styles.title, { color: colors.text }]}>Balances</Text>
       </View>
       
-      <View style={styles.summaryContainer}>
-        <View style={[styles.summaryBox, { backgroundColor: colorScheme === 'dark' ? '#1C1C1E' : '#F2F2F7' }]}>
+      <View style={[styles.summaryContainer, isDesktop && styles.summaryContainerDesktop]}>
+        <View style={[styles.summaryBox, { backgroundColor: colorScheme === 'dark' ? '#1C1C1E' : '#F2F2F7' }, isDesktop && styles.summaryBoxDesktop]}>
           <Text style={[styles.summaryLabel, { color: colors.text }]}>You owe</Text>
           <Text style={[styles.summaryAmount, { color: colors.negative }]}>₹2,500.00</Text>
         </View>
@@ -23,7 +25,7 @@ export default function BalancesScreen() {
         </View>
       </View>
 
-      <View style={styles.usersList}>
+      <View style={[styles.usersList, isDesktop && styles.usersListDesktop]}>
         {[
           { name: 'John Smith', amount: 6435.00, type: 'get' },
           { name: 'Sarah Wilson', amount: 2500.00, type: 'owe' },
@@ -59,6 +61,19 @@ export default function BalancesScreen() {
 }
 
 const styles = StyleSheet.create({
+  summaryContainerDesktop: {
+    maxWidth: 1200,
+    alignSelf: 'center',
+    width: '100%',
+  },
+  summaryBoxDesktop: {
+    padding: 24,
+  },
+  usersListDesktop: {
+    maxWidth: 1200,
+    alignSelf: 'center',
+    width: '100%',
+  },
   container: {
     flex: 1,
   },
