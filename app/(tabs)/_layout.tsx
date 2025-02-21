@@ -95,6 +95,9 @@ export default function TabLayout() {
             tabBarActiveTintColor: Colors[colorScheme ?? 'light'].tint,
             tabBarInactiveTintColor: colorScheme === 'dark' ? '#666' : '#999',
           }}
+          sceneContainerStyle={{
+            backgroundColor: colorScheme === 'dark' ? '#000' : '#fff',
+          }}
         >
           <Tabs.Screen
             name="index"
@@ -139,6 +142,13 @@ export default function TabLayout() {
               tabBarIcon: ({ color, size }) => (
                 <Ionicons name="person" size={size} color={color} />
               ),
+            }}
+          />
+          <Tabs.Screen
+            name="user/[id]"
+            options={{
+              href: null,
+              presentation: 'modal'
             }}
           />
         </Tabs>

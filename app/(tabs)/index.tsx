@@ -12,6 +12,7 @@ import { BlurView } from 'expo-blur';
 import Animated, { FadeInDown, FadeInUp } from 'react-native-reanimated';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
+import { useRouter } from 'expo-router';
 
 function AmountDisplay({
   amount,
@@ -44,6 +45,7 @@ export default function BalancesScreen() {
   const colors = Colors[colorScheme ?? 'light'];
   const { width } = useWindowDimensions();
   const isDesktop = width >= 768;
+  const router = useRouter();
 
   return (
     <ScrollView
@@ -103,76 +105,97 @@ export default function BalancesScreen() {
 
       <View style={[styles.usersList, isDesktop && styles.usersListDesktop]}>
         {[
-          { name: 'John Smith', amount: 6435, type: 'get' as const },
-          { name: 'Sarah Wilson', amount: 2500, type: 'owe' as const },
-          { name: 'Mike Johnson', amount: 75.0, type: 'owe' as const },
-          { name: 'Emily Brown', amount: 0, type: 'settled' as const },
+          { name: 'Aarush', amount: 180.0, type: 'get' as const },
+          { name: 'Adarsh S.', amount: 377.0, type: 'get' as const },
+          { name: 'Arnav Vats', amount: 60.0, type: 'get' as const },
+          {
+            name: 'Harleen',
+            amount: 2483.68,
+            type: 'get' as const,
+            transactions: [
+              { description: 'Non-group expense', amount: 2135.88 },
+              { description: 'The Big Chill', amount: 347.8 },
+            ],
+          },
+          { name: 'mehul', amount: 250.0, type: 'get' as const },
+          { name: 'Nipun PRAKASH', amount: 583.0, type: 'owe' as const },
+          {
+            name: 'Radhika',
+            amount: 4206.0,
+            type: 'get' as const,
+            transactions: [
+              { description: 'Non-group expense', amount: 3921.0 },
+              { description: 'kattt gayaaaa night', amount: 285.0 },
+            ],
+          },
+          { name: 'Shahzad', amount: 65.0, type: 'get' as const },
+          { name: 'Shashwat Singh', amount: 542.75, type: 'owe' as const },
         ].map((user, index) => (
           <Animated.View
             entering={FadeInUp.delay(200 * index).duration(800)}
             key={index}
           >
             <Pressable
+              onPress={() => router.push(`/user/${user.name}`)}
               style={({ pressed }) => [
                 styles.userItem,
-                { opacity: pressed ? 0.8 : 1 },
                 {
                   backgroundColor:
-                    colorScheme === 'dark'
-                      ? 'rgba(255,255,255,0.05)'
-                      : 'rgba(0,0,0,0.02)',
+                    colorScheme === 'dark' ? '#1C1C1E' : '#F2F2F7',
+                  opacity: pressed ? 0.7 : 1,
                 },
               ]}
             >
               <View style={styles.userInfo}>
-                <LinearGradient
-                  colors={[colors.tint, colors.tabIconSelected]}
-                  style={styles.avatar}
-                >
+                <View style={[styles.avatar, { backgroundColor: colors.tint }]}>
                   <Text style={styles.avatarText}>{user.name[0]}</Text>
-                </LinearGradient>
-                <Text
-                  style={[styles.userName, { color: colors.text }]}
-                  numberOfLines={1}
-                >
-                  {user.name}
-                </Text>
-              </View>
-              <View style={styles.amountWithIcon}>
-                <AmountDisplay
-                  amount={user.amount}
-                  showPrefix={false}
-                  type={user.type}
-                  style={[
-                    styles.userAmount,
-                    {
-                      color:
-                        user.type === 'get'
-                          ? colors.positive
-                          : user.type === 'owe'
-                          ? colors.negative
-                          : colors.text,
-                    },
-                  ]}
-                />
-                <Ionicons
-                  name={
-                    user.type === 'get'
-                      ? 'arrow-up-circle'
-                      : user.type === 'owe'
-                      ? 'arrow-down-circle'
-                      : 'checkmark-circle'
-                  }
-                  size={24}
-                  color={
-                    user.type === 'get'
-                      ? colors.positive
-                      : user.type === 'owe'
-                      ? colors.negative
-                      : colors.text
-                  }
-                  style={styles.icon}
-                />
+                </View>
+                <View style={styles.userDetails}>
+                  <View style={styles.userMainInfo}>
+                    <Text style={[styles.userName, { color: colors.text }]}>
+                      {user.name}
+                    </Text>
+                    <View style={styles.amountWithIcon}>
+                      <AmountDisplay
+                        amount={user.amount}
+                        showPrefix={false}
+                        style={[
+                          styles.userAmount,
+                          {
+                            color:
+                              user.type === 'get'
+                                ? colors.positive
+                                : colors.negative,
+                          },
+                        ]}
+                      />
+                      <Ionicons
+                        name={
+                          user.type === 'get'
+                            ? 'arrow-up-circle'
+                            : 'arrow-down-circle'
+                        }
+                        size={20}
+                        color={
+                          user.type === 'get'
+                            ? colors.positive
+                            : colors.negative
+                        }
+                      />
+                    </View>
+                  </View>
+                  {user.transactions && (
+                    <Text
+                      style={[styles.transactionText, { color: colors.text }]}
+                    >
+                      {user.transactions
+                        .map(
+                          (t) => `${t.description} · ₹${t.amount.toFixed(2)}`
+                        )
+                        .join('\n')}
+                    </Text>
+                  )}
+                </View>
               </View>
             </Pressable>
           </Animated.View>
@@ -240,51 +263,54 @@ const styles = StyleSheet.create({
   },
   usersList: {
     padding: 16,
+    gap: 16,
   },
   userItem: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    padding: 16,
-    marginVertical: 6,
     borderRadius: 12,
+    padding: 16,
   },
   userInfo: {
     flexDirection: 'row',
     alignItems: 'center',
-    flex: 1,
-    marginRight: 12,
   },
   avatar: {
-    width: 44,
-    height: 44,
-    borderRadius: 22,
+    width: 48,
+    height: 48,
+    borderRadius: 24,
     justifyContent: 'center',
     alignItems: 'center',
-    marginRight: 12,
+    marginRight: 16,
   },
   avatarText: {
     color: 'white',
-    fontSize: 18,
-    fontWeight: '600',
+    fontSize: 20,
+    fontWeight: 'bold',
   },
-  userName: {
-    fontSize: 17,
-    fontWeight: '600',
+  userDetails: {
     flex: 1,
+  },
+  userMainInfo: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 4,
   },
   amountWithIcon: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 8,
+    gap: 4,
   },
-  icon: {
-    marginLeft: 4,
+  userName: {
+    fontSize: 17,
+    fontWeight: '600',
   },
   userAmount: {
     fontSize: 16,
     fontWeight: '600',
-    textAlign: 'right',
+  },
+  transactionText: {
+    fontSize: 15,
+    opacity: 0.6,
   },
   amountContainer: {
     alignItems: 'flex-end',
