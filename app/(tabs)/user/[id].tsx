@@ -116,6 +116,12 @@ export default function UserTransactionScreen() {
       : (['#ffffff00', colors.background] as const);
   }, [colorScheme]);
 
+  const getDateTextColor = useMemo(() => {
+    return colorScheme === 'dark'
+      ? colors.text + 'E6' // Higher opacity (90%) in dark mode for better legibility
+      : colors.text + '10'; // Original opacity in light mode
+  }, [colorScheme, colors.text]);
+
   return (
     <ScrollView
       style={[styles.container, { backgroundColor: colors.background }]}
@@ -207,7 +213,15 @@ export default function UserTransactionScreen() {
       <View style={styles.transactionList}>
         {userData.transactions.map((month, monthIndex) => (
           <View key={monthIndex} style={styles.monthGroup}>
-            <Text style={[styles.monthHeader, { color: colors.text }]}>
+            <Text
+              style={[
+                styles.monthHeader,
+                {
+                  color: colors.text,
+                  opacity: colorScheme === 'dark' ? 0.9 : 1,
+                },
+              ]}
+            >
               {month.date}
             </Text>
             {month.items.map((transaction, transactionIndex) => (
@@ -261,7 +275,12 @@ export default function UserTransactionScreen() {
                   <Text
                     style={[
                       styles.transactionDate,
-                      { color: colors.text + '80' },
+                      {
+                        color:
+                          colorScheme === 'dark'
+                            ? '#9999AA80' // Added 80 for 50% opacity in dark mode
+                            : getDateTextColor,
+                      },
                     ]}
                   >
                     {transaction.date}
