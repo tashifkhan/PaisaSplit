@@ -168,6 +168,13 @@ export default function TabLayout() {
               tabBarStyle: { display: 'none' },
             }}
           />
+          <Tabs.Screen
+            name="activity/[id]"
+            options={{
+              href: null,
+              tabBarStyle: { display: 'none' },
+            }}
+          />
         </Tabs>
       </View>
     </View>

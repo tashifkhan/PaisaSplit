@@ -10,10 +10,12 @@ import { useColorScheme } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import Colors from '@/constants/Colors';
 import { useState, useRef } from 'react';
+import { useRouter } from 'expo-router';
 
 export default function ActivityScreen() {
   const colorScheme = useColorScheme();
   const colors = Colors[colorScheme ?? 'light'];
+  const router = useRouter();
   const [selectedFilter, setSelectedFilter] = useState('all');
   const scrollY = useRef(new Animated.Value(0)).current;
 
@@ -133,6 +135,10 @@ export default function ActivityScreen() {
                 .map((activity, activityIndex) => (
                   <Pressable
                     key={activityIndex}
+                    onPress={() => {
+                      // TODO: Navigate to activity detail screen
+                      router.push(`/activity/${activity.id}`);
+                    }}
                     style={({ pressed }) => [
                       styles.activityItem,
                       {
