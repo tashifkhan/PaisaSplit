@@ -7,6 +7,7 @@ import {
   StyleSheet,
   Text,
   Pressable,
+  Platform,
 } from 'react-native';
 import { Link } from 'expo-router';
 import Colors from '@/constants/Colors';
@@ -90,7 +91,9 @@ export default function TabLayout() {
             tabBarStyle: {
               display: isDesktop ? 'none' : 'flex',
               backgroundColor: colorScheme === 'dark' ? '#000' : '#fff',
-              borderTopColor: colorScheme === 'dark' ? '#222' : '#eee',
+              borderTopWidth: 0,
+              height: Platform.OS === 'ios' ? 90 : 70,
+              paddingTop: 12,
             },
             tabBarActiveTintColor: Colors[colorScheme ?? 'light'].tint,
             tabBarInactiveTintColor: colorScheme === 'dark' ? '#666' : '#999',
@@ -145,10 +148,15 @@ export default function TabLayout() {
             }}
           />
           <Tabs.Screen
+            name="group/[id]"
+            options={{
+              href: null,
+            }}
+          />
+          <Tabs.Screen
             name="user/[id]"
             options={{
               href: null,
-              presentation: 'modal'
             }}
           />
         </Tabs>

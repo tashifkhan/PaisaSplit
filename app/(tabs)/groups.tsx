@@ -1,5 +1,6 @@
 import { View, Text, StyleSheet, ScrollView, Pressable } from 'react-native';
 import { useColorScheme } from 'react-native';
+import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import Colors from '@/constants/Colors';
 import { BlurView } from 'expo-blur';
@@ -34,6 +35,7 @@ function AmountDisplay({
 export default function GroupsScreen() {
   const colorScheme = useColorScheme();
   const colors = Colors[colorScheme ?? 'light'];
+  const router = useRouter();
 
   return (
     <ScrollView
@@ -107,14 +109,20 @@ export default function GroupsScreen() {
             members: ['Shashwat S.'],
           },
         ].map((group, index) => (
-          <View
+          <Pressable
             key={index}
-            style={[
-              styles.groupItem,
-              {
-                backgroundColor: colorScheme === 'dark' ? '#1C1C1E' : '#F2F2F7',
-              },
-            ]}
+            style={({ pressed }) => [{
+              backgroundColor: colorScheme === 'dark' ? '#1C1C1E' : '#F2F2F7',
+              borderRadius: 12,
+              padding: 16,
+              transform: [{ scale: pressed ? 0.98 : 1 }],
+              shadowColor: '#000',
+              shadowOffset: { width: 0, height: 2 },
+              shadowOpacity: colorScheme === 'dark' ? 0.3 : 0.1,
+              shadowRadius: 8,
+              elevation: 3,
+            }]}
+            onPress={() => router.push(`/group/${group.name.toLowerCase().replace(/\s+/g, '-')}`)}
           >
             <View style={styles.groupInfo}>
               <View
@@ -131,26 +139,14 @@ export default function GroupsScreen() {
                     <AmountDisplay
                       amount={group.amount}
                       showPrefix={false}
-                      style={[
-                        styles.groupAmount,
-                        {
-                          color:
-                            group.type === 'get'
-                              ? colors.positive
-                              : colors.negative,
-                        },
-                      ]}
+                      style={[styles.groupAmount, {
+                        color: group.type === 'get' ? colors.positive : colors.negative
+                      }]}
                     />
                     <Ionicons
-                      name={
-                        group.type === 'get'
-                          ? 'arrow-up-circle'
-                          : 'arrow-down-circle'
-                      }
+                      name={group.type === 'get' ? 'arrow-up-circle' : 'arrow-down-circle'}
                       size={20}
-                      color={
-                        group.type === 'get' ? colors.positive : colors.negative
-                      }
+                      color={group.type === 'get' ? colors.positive : colors.negative}
                     />
                   </View>
                 </View>
@@ -159,7 +155,7 @@ export default function GroupsScreen() {
                 </Text>
               </View>
             </View>
-          </View>
+          </Pressable>
         ))}
       </View>
     </ScrollView>
