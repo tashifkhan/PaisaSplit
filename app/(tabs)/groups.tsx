@@ -1,10 +1,12 @@
-import { View, Text, StyleSheet, ScrollView, Pressable } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, Pressable, Modal } from 'react-native';
 import { useColorScheme } from 'react-native';
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import Colors from '@/constants/Colors';
 import { BlurView } from 'expo-blur';
 import { LinearGradient } from 'expo-linear-gradient';
+import { useState } from 'react';
+import GroupModal from '@/components/GroupModal';
 
 function AmountDisplay({
   amount,
@@ -36,6 +38,11 @@ export default function GroupsScreen() {
   const colorScheme = useColorScheme();
   const colors = Colors[colorScheme ?? 'light'];
   const router = useRouter();
+  const [isModalVisible, setIsModalVisible] = useState(false);
+
+  const handleCloseModal = () => {
+    setIsModalVisible(false);
+  };
 
   return (
     <ScrollView
@@ -43,7 +50,7 @@ export default function GroupsScreen() {
     >
       <View style={styles.header}>
         <Text style={[styles.title, { color: colors.text }]}>Groups</Text>
-        <Pressable style={styles.addButton}>
+        <Pressable style={styles.addButton} onPress={() => setIsModalVisible(true)}>
           <Ionicons name="person-add" size={24} color={colors.tint} />
         </Pressable>
       </View>
@@ -265,5 +272,20 @@ const styles = StyleSheet.create({
   },
   amountText: {
     lineHeight: 28,
+  },
+  modalOverlay: {
+    flex: 1,
+    justifyContent: 'flex-end',
+  },
+  modalBackground: {
+    ...StyleSheet.absoluteFillObject,
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+  },
+  modalContent: {
+    borderTopLeftRadius: 20,
+    borderTopRightRadius: 20,
+    height: '90%',
+    width: '100%',
+    overflow: 'hidden',
   },
 });
