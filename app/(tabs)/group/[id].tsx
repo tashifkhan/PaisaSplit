@@ -358,6 +358,9 @@ export default function GroupTransactionScreen() {
             {month.items.map((transaction, transactionIndex) => (
               <Pressable
                 key={transactionIndex}
+                onPress={() =>
+                  router.push(`/group/transaction/${transactionIndex}`)
+                }
                 style={({ pressed }) => [
                   styles.transactionItem,
                   {
