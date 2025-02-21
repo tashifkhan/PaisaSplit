@@ -141,6 +141,14 @@ export default function ActivityScreen() {
                 selectedFilter === filter.id && {
                   backgroundColor: colors.tint,
                 },
+                // Add shadow to filter buttons
+                {
+                  shadowColor: '#000',
+                  shadowOffset: { width: 0, height: 2 },
+                  shadowOpacity: colorScheme === 'dark' ? 0.3 : 0.1,
+                  shadowRadius: 4,
+                  // elevation: 2,
+                },
               ]}
             >
               <Text
@@ -188,6 +196,12 @@ export default function ActivityScreen() {
                         backgroundColor:
                           colorScheme === 'dark' ? '#1C1C1E' : '#F2F2F7',
                         transform: [{ scale: pressed ? 0.98 : 1 }],
+                        // Add shadow to activity items
+                        shadowColor: '#000',
+                        shadowOffset: { width: 0, height: 2 },
+                        shadowOpacity: colorScheme === 'dark' ? 0.3 : 0.1,
+                        shadowRadius: 8,
+                        elevation: 3,
                       },
                     ]}
                   >
@@ -437,6 +451,12 @@ const styles = StyleSheet.create({
     paddingHorizontal: 12,
     borderRadius: 10,
     gap: 8,
+    // Add shadow to search bar
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 2,
   },
   searchInput: {
     flex: 1,
