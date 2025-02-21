@@ -1,20 +1,33 @@
-import {
-  View,
-  Text,
-  StyleSheet,
-  ScrollView,
-  Pressable,
-  Image,
-} from 'react-native';
+import { View, Text, StyleSheet, ScrollView, Pressable } from 'react-native';
 import { useColorScheme } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import Colors from '@/constants/Colors';
-import { useRouter } from 'expo-router';
+import { useLocalSearchParams, useRouter } from 'expo-router';
+import { BlurView } from 'expo-blur';
+import { LinearGradient } from 'expo-linear-gradient';
 
-export default function ActivityDetailScreen() {
+export default function TransactionDetailScreen() {
   const colorScheme = useColorScheme();
   const colors = Colors[colorScheme ?? 'light'];
   const router = useRouter();
+  const { id } = useLocalSearchParams();
+
+  // Mock transaction data - in real app, fetch based on id
+  const transaction = {
+    id: '1',
+    description: 'big chill Khan markwt',
+    amount: 2200.0,
+    yourAmount: 1100.0,
+    type: 'borrowed',
+    date: '14-Apr-2024',
+    time: '12:08',
+    category: 'Food & Drink',
+    notes: 'Lunch with friends',
+    participants: [
+      { name: 'Harleen', amount: 2200.0, status: 'settled' },
+      { name: 'You', amount: 1100.0, status: 'pending' },
+    ],
+  };
 
   return (
     <View style={[styles.container, { backgroundColor: colors.background }]}>
@@ -49,17 +62,23 @@ export default function ActivityDetailScreen() {
                   { backgroundColor: `${colors.tint}20` },
                 ]}
               >
-                <Ionicons name="restaurant" size={24} color={colors.tint} />
+                <Ionicons
+                  name={
+                    transaction.type === 'borrowed' ? 'arrow-down' : 'arrow-up'
+                  }
+                  size={24}
+                  color={colors.tint}
+                />
               </View>
               <Text style={[styles.category, { color: colors.text }]}>
-                big chill Khan markwt
+                {transaction.description}
               </Text>
             </View>
             <Text style={[styles.amount, { color: colors.text }]}>
-              ₹2,200.00
+              ₹{transaction.amount.toFixed(2)}
             </Text>
             <Text style={[styles.date, { color: colors.text }]}>
-              14-Apr-2024
+              {transaction.date}
             </Text>
           </View>
 
@@ -75,31 +94,30 @@ export default function ActivityDetailScreen() {
               Split Details
             </Text>
             <View style={styles.splitList}>
-              {[
-                { name: 'Harleen', amount: 2200, status: 'settled' },
-                { name: 'You', amount: 1100, status: 'pending' },
-              ].map((person, index) => (
+              {transaction.participants.map((participant, index) => (
                 <View key={index} style={styles.splitItem}>
                   <View style={styles.personInfo}>
                     <View
                       style={[styles.avatar, { backgroundColor: colors.tint }]}
                     >
-                      <Text style={styles.avatarText}>{person.name[0]}</Text>
+                      <Text style={styles.avatarText}>
+                        {participant.name[0]}
+                      </Text>
                     </View>
                     <Text style={[styles.personName, { color: colors.text }]}>
-                      {person.name}
+                      {participant.name}
                     </Text>
                   </View>
                   <View style={styles.amountInfo}>
                     <Text style={[styles.splitAmount, { color: colors.text }]}>
-                      ₹{person.amount.toFixed(2)}
+                      ₹{participant.amount.toFixed(2)}
                     </Text>
                     <View
                       style={[
                         styles.statusBadge,
                         {
                           backgroundColor:
-                            person.status === 'settled'
+                            participant.status === 'settled'
                               ? colors.positive + '20'
                               : colors.negative + '20',
                         },
@@ -110,13 +128,13 @@ export default function ActivityDetailScreen() {
                           styles.statusText,
                           {
                             color:
-                              person.status === 'settled'
+                              participant.status === 'settled'
                                 ? colors.positive
                                 : colors.negative,
                           },
                         ]}
                       >
-                        {person.status}
+                        {participant.status}
                       </Text>
                     </View>
                   </View>
@@ -164,7 +182,6 @@ export default function ActivityDetailScreen() {
             </View>
           </View>
 
-          {/* Action Buttons */}
           <View style={styles.actions}>
             <Pressable
               style={[styles.actionButton, { backgroundColor: colors.tint }]}
@@ -228,7 +245,6 @@ const styles = StyleSheet.create({
   },
   date: {
     fontSize: 15,
-    opacity: 0.7,
   },
   section: {
     padding: 16,

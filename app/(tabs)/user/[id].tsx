@@ -310,6 +310,11 @@ export default function UserTransactionScreen() {
             {month.items.map((transaction, transactionIndex) => (
               <Pressable
                 key={transactionIndex}
+                onPress={() =>
+                  router.push(
+                    `/user/transaction/${monthIndex}-${transactionIndex}`
+                  )
+                }
                 style={({ pressed }) => [
                   styles.transactionItem,
                   {
