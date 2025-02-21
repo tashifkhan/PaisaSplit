@@ -1,6 +1,43 @@
-import { View, Text, StyleSheet, ScrollView, useWindowDimensions } from 'react-native';
+import {
+  View,
+  Text,
+  StyleSheet,
+  ScrollView,
+  useWindowDimensions,
+  Pressable,
+} from 'react-native';
 import { useColorScheme } from 'react-native';
 import Colors from '@/constants/Colors';
+import { BlurView } from 'expo-blur';
+import Animated, { FadeInDown, FadeInUp } from 'react-native-reanimated';
+import { LinearGradient } from 'expo-linear-gradient';
+import { Ionicons } from '@expo/vector-icons';
+
+function AmountDisplay({
+  amount,
+  style,
+  showPrefix = true,
+  type,
+}: {
+  amount: number;
+  style?: any;
+  showPrefix?: boolean;
+  type?: 'get' | 'owe' | 'settled';
+}) {
+  const roundedAmount = Math.round(amount);
+  const amountString = roundedAmount.toLocaleString('en-IN');
+  const shouldSplit = amountString.length > 8;
+
+  if (shouldSplit) {
+    return (
+      <View style={styles.amountContainer}>
+        <Text style={[style, styles.amountText]}>₹{amountString}</Text>
+      </View>
+    );
+  }
+
+  return <Text style={[style]}>₹{amountString}</Text>;
+}
 
 export default function BalancesScreen() {
   const colorScheme = useColorScheme();
@@ -9,51 +46,136 @@ export default function BalancesScreen() {
   const isDesktop = width >= 768;
 
   return (
-    <ScrollView style={[styles.container, { backgroundColor: colors.background }]}>
-      <View style={styles.header}>
+    <ScrollView
+      style={[styles.container, { backgroundColor: colors.background }]}
+    >
+      <Animated.View entering={FadeInDown.duration(800)} style={styles.header}>
         <Text style={[styles.title, { color: colors.text }]}>Balances</Text>
-      </View>
-      
-      <View style={[styles.summaryContainer, isDesktop && styles.summaryContainerDesktop]}>
-        <View style={[styles.summaryBox, { backgroundColor: colorScheme === 'dark' ? '#1C1C1E' : '#F2F2F7' }, isDesktop && styles.summaryBoxDesktop]}>
-          <Text style={[styles.summaryLabel, { color: colors.text }]}>You owe</Text>
-          <Text style={[styles.summaryAmount, { color: colors.negative }]}>₹2,500.00</Text>
-        </View>
-        <View style={[styles.summaryBox, { backgroundColor: colorScheme === 'dark' ? '#1C1C1E' : '#F2F2F7' }]}>
-          <Text style={[styles.summaryLabel, { color: colors.text }]}>You get</Text>
-          <Text style={[styles.summaryAmount, { color: colors.positive }]}>₹6,360.00</Text>
-        </View>
+      </Animated.View>
+
+      <View
+        style={[
+          styles.summaryContainer,
+          isDesktop && styles.summaryContainerDesktop,
+        ]}
+      >
+        {[
+          { label: 'You owe', amount: 2500.0, type: 'negative' },
+          { label: 'You get', amount: 6360.0, type: 'positive' },
+        ].map((item, index) => (
+          <Animated.View
+            key={index}
+            entering={FadeInUp.delay(400 * index).duration(800)}
+            style={[styles.summaryBox, isDesktop && styles.summaryBoxDesktop]}
+          >
+            <BlurView
+              intensity={80}
+              tint={colorScheme === 'dark' ? 'dark' : 'light'}
+              style={styles.blurContainer}
+            >
+              <LinearGradient
+                colors={
+                  item.type === 'positive'
+                    ? ['rgba(52, 199, 89, 0.1)', 'rgba(52, 199, 89, 0.05)']
+                    : ['rgba(255, 59, 48, 0.1)', 'rgba(255, 59, 48, 0.05)']
+                }
+                style={styles.gradientOverlay}
+              />
+              <Text style={[styles.summaryLabel, { color: colors.text }]}>
+                {item.label}
+              </Text>
+              <AmountDisplay
+                amount={item.amount}
+                style={[
+                  styles.summaryAmount,
+                  {
+                    color:
+                      item.type === 'positive'
+                        ? colors.positive
+                        : colors.negative,
+                  },
+                ]}
+              />
+            </BlurView>
+          </Animated.View>
+        ))}
       </View>
 
       <View style={[styles.usersList, isDesktop && styles.usersListDesktop]}>
         {[
-          { name: 'John Smith', amount: 6435.00, type: 'get' },
-          { name: 'Sarah Wilson', amount: 2500.00, type: 'owe' },
-          { name: 'Mike Johnson', amount: 75.00, type: 'owe' },
-          { name: 'Emily Brown', amount: 0, type: 'settled' },
+          { name: 'John Smith', amount: 6435, type: 'get' as const },
+          { name: 'Sarah Wilson', amount: 2500, type: 'owe' as const },
+          { name: 'Mike Johnson', amount: 75.0, type: 'owe' as const },
+          { name: 'Emily Brown', amount: 0, type: 'settled' as const },
         ].map((user, index) => (
-          <View 
+          <Animated.View
+            entering={FadeInUp.delay(200 * index).duration(800)}
             key={index}
-            style={[
-              styles.userItem,
-              { borderBottomColor: colorScheme === 'dark' ? '#2C2C2E' : '#E5E5EA' }
-            ]}
           >
-            <View style={styles.userInfo}>
-              <View style={[styles.avatar, { backgroundColor: colors.tint }]}>
-                <Text style={styles.avatarText}>{user.name[0]}</Text>
-              </View>
-              <Text style={[styles.userName, { color: colors.text }]}>{user.name}</Text>
-            </View>
-            <Text
-              style={[
-                styles.userAmount,
-                { color: user.type === 'get' ? colors.positive : user.type === 'owe' ? colors.negative : colors.text }
+            <Pressable
+              style={({ pressed }) => [
+                styles.userItem,
+                { opacity: pressed ? 0.8 : 1 },
+                {
+                  backgroundColor:
+                    colorScheme === 'dark'
+                      ? 'rgba(255,255,255,0.05)'
+                      : 'rgba(0,0,0,0.02)',
+                },
               ]}
             >
-              {user.type === 'settled' ? 'Settled up' : `${user.type === 'owe' ? 'you owe' : 'you get'} ₹${user.amount.toFixed(2)}`}
-            </Text>
-          </View>
+              <View style={styles.userInfo}>
+                <LinearGradient
+                  colors={[colors.tint, colors.tabIconSelected]}
+                  style={styles.avatar}
+                >
+                  <Text style={styles.avatarText}>{user.name[0]}</Text>
+                </LinearGradient>
+                <Text
+                  style={[styles.userName, { color: colors.text }]}
+                  numberOfLines={1}
+                >
+                  {user.name}
+                </Text>
+              </View>
+              <View style={styles.amountWithIcon}>
+                <AmountDisplay
+                  amount={user.amount}
+                  showPrefix={false}
+                  type={user.type}
+                  style={[
+                    styles.userAmount,
+                    {
+                      color:
+                        user.type === 'get'
+                          ? colors.positive
+                          : user.type === 'owe'
+                          ? colors.negative
+                          : colors.text,
+                    },
+                  ]}
+                />
+                <Ionicons
+                  name={
+                    user.type === 'get'
+                      ? 'arrow-up-circle'
+                      : user.type === 'owe'
+                      ? 'arrow-down-circle'
+                      : 'checkmark-circle'
+                  }
+                  size={24}
+                  color={
+                    user.type === 'get'
+                      ? colors.positive
+                      : user.type === 'owe'
+                      ? colors.negative
+                      : colors.text
+                  }
+                  style={styles.icon}
+                />
+              </View>
+            </Pressable>
+          </Animated.View>
         ))}
       </View>
     </ScrollView>
@@ -92,16 +214,29 @@ const styles = StyleSheet.create({
   },
   summaryBox: {
     flex: 1,
-    padding: 16,
-    borderRadius: 12,
+    height: 'auto',
+    minHeight: 120,
+    borderRadius: 20,
+    overflow: 'hidden',
+  },
+  blurContainer: {
+    flex: 1,
+    padding: 20,
+    justifyContent: 'center',
+  },
+  gradientOverlay: {
+    ...StyleSheet.absoluteFillObject,
   },
   summaryLabel: {
     fontSize: 16,
     marginBottom: 8,
+    fontWeight: '600',
+    opacity: 0.8,
   },
   summaryAmount: {
-    fontSize: 20,
-    fontWeight: 'bold',
+    fontSize: 28,
+    fontWeight: '800',
+    lineHeight: 34,
   },
   usersList: {
     padding: 16,
@@ -110,32 +245,56 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    paddingVertical: 12,
-    borderBottomWidth: 1,
+    padding: 16,
+    marginVertical: 6,
+    borderRadius: 12,
   },
   userInfo: {
     flexDirection: 'row',
     alignItems: 'center',
+    flex: 1,
+    marginRight: 12,
   },
   avatar: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
+    width: 44,
+    height: 44,
+    borderRadius: 22,
     justifyContent: 'center',
     alignItems: 'center',
     marginRight: 12,
   },
   avatarText: {
     color: 'white',
-    fontSize: 16,
-    fontWeight: 'bold',
+    fontSize: 18,
+    fontWeight: '600',
   },
   userName: {
-    fontSize: 16,
-    fontWeight: '500',
+    fontSize: 17,
+    fontWeight: '600',
+    flex: 1,
+  },
+  amountWithIcon: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+  },
+  icon: {
+    marginLeft: 4,
   },
   userAmount: {
     fontSize: 16,
-    fontWeight: '500',
+    fontWeight: '600',
+    textAlign: 'right',
+  },
+  amountContainer: {
+    alignItems: 'flex-end',
+  },
+  amountPrefix: {
+    fontSize: 14,
+    opacity: 0.8,
+    marginBottom: 2,
+  },
+  amountText: {
+    lineHeight: 28,
   },
 });
