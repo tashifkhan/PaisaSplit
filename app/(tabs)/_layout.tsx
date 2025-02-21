@@ -154,6 +154,12 @@ export default function TabLayout() {
             }}
           />
           <Tabs.Screen
+            name="group/settings"
+            options={{
+              href: null,
+            }}
+          />
+          <Tabs.Screen
             name="user/[id]"
             options={{
               href: null,
