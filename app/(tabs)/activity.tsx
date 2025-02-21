@@ -5,11 +5,12 @@ import {
   ScrollView,
   Pressable,
   Animated,
+  TextInput,
 } from 'react-native';
 import { useColorScheme } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import Colors from '@/constants/Colors';
-import { useState, useRef } from 'react';
+import { useState, useRef, useMemo } from 'react';
 import { useRouter } from 'expo-router';
 
 export default function ActivityScreen() {
@@ -17,6 +18,7 @@ export default function ActivityScreen() {
   const colors = Colors[colorScheme ?? 'light'];
   const router = useRouter();
   const [selectedFilter, setSelectedFilter] = useState('all');
+  const [searchQuery, setSearchQuery] = useState('');
   const scrollY = useRef(new Animated.Value(0)).current;
 
   const filters = [
@@ -32,11 +34,97 @@ export default function ActivityScreen() {
     extrapolate: 'clamp',
   });
 
+  const activities = [
+    {
+      date: 'Today',
+      activities: [
+        {
+          type: 'expense',
+          category: 'Food',
+          amount: 600.0,
+          paidBy: 'John',
+          currency: 'INR',
+          yourShare: 300.0,
+          group: 'Lunch Group',
+          status: 'pending',
+          paymentMethod: 'UPI',
+          notes: 'Team lunch at Big Chill',
+        },
+        {
+          type: 'payment',
+          amount: 120.0,
+          from: 'You',
+          to: 'Sarah',
+          currency: 'INR',
+          status: 'completed',
+          paymentMethod: 'Bank Transfer',
+          notes: 'Movie tickets settlement',
+        },
+      ],
+    },
+    {
+      date: 'Yesterday',
+      activities: [
+        {
+          type: 'expense',
+          category: 'Movie',
+          amount: 500.0,
+          paidBy: 'You',
+          currency: 'INR',
+          yourShare: 250.0,
+          group: 'Weekend Group',
+          status: 'settled',
+          paymentMethod: 'Cash',
+          notes: 'Oppenheimer IMAX',
+        },
+      ],
+    },
+  ];
+
+  const filteredActivities = useMemo(() => {
+    return activities
+      .map((day) => ({
+        ...day,
+        activities: day.activities.filter(
+          (activity) =>
+            activity.notes?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+            activity.category
+              ?.toLowerCase()
+              .includes(searchQuery.toLowerCase()) ||
+            activity.group?.toLowerCase().includes(searchQuery.toLowerCase())
+        ),
+      }))
+      .filter((day) => day.activities.length > 0);
+  }, [searchQuery]);
+
   return (
     <View style={[styles.container, { backgroundColor: colors.background }]}>
       <Animated.View style={[styles.header, { opacity: headerOpacity }]}>
         <Text style={[styles.title, { color: colors.text }]}>Activity</Text>
       </Animated.View>
+
+      <View style={styles.searchContainer}>
+        <View
+          style={[
+            styles.searchBar,
+            { backgroundColor: colorScheme === 'dark' ? '#1C1C1E' : '#F2F2F7' },
+          ]}
+        >
+          <Ionicons name="search" size={20} color={colors.text} />
+          <TextInput
+            style={[styles.searchInput, { color: colors.text }]}
+            placeholder="Search activities..."
+            placeholderTextColor={colorScheme === 'dark' ? '#666' : '#999'}
+            value={searchQuery}
+            onChangeText={setSearchQuery}
+          />
+          {searchQuery !== '' && (
+            <Pressable onPress={() => setSearchQuery('')}>
+              <Ionicons name="close-circle" size={20} color={colors.text} />
+            </Pressable>
+          )}
+        </View>
+      </View>
 
       <View style={styles.filterContainer}>
         <ScrollView
@@ -72,52 +160,7 @@ export default function ActivityScreen() {
 
       <ScrollView style={styles.scrollView} scrollEventThrottle={16}>
         <View style={styles.activityList}>
-          {[
-            {
-              date: 'Today',
-              activities: [
-                {
-                  type: 'expense',
-                  category: 'Food',
-                  amount: 600.0,
-                  paidBy: 'John',
-                  currency: 'INR',
-                  yourShare: 300.0,
-                  group: 'Lunch Group',
-                  status: 'pending',
-                  paymentMethod: 'UPI',
-                  notes: 'Team lunch at Big Chill',
-                },
-                {
-                  type: 'payment',
-                  amount: 120.0,
-                  from: 'You',
-                  to: 'Sarah',
-                  currency: 'INR',
-                  status: 'completed',
-                  paymentMethod: 'Bank Transfer',
-                  notes: 'Movie tickets settlement',
-                },
-              ],
-            },
-            {
-              date: 'Yesterday',
-              activities: [
-                {
-                  type: 'expense',
-                  category: 'Movie',
-                  amount: 500.0,
-                  paidBy: 'You',
-                  currency: 'INR',
-                  yourShare: 250.0,
-                  group: 'Weekend Group',
-                  status: 'settled',
-                  paymentMethod: 'Cash',
-                  notes: 'Oppenheimer IMAX',
-                },
-              ],
-            },
-          ].map((day, dayIndex) => (
+          {filteredActivities.map((day, dayIndex) => (
             <View key={dayIndex} style={styles.dayGroup}>
               <Text style={[styles.dateHeader, { color: colors.text }]}>
                 {day.date}
@@ -382,5 +425,22 @@ const styles = StyleSheet.create({
   notes: {
     fontSize: 13,
     marginTop: 4,
+  },
+  searchContainer: {
+    padding: 16,
+    paddingTop: 0,
+  },
+  searchBar: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    padding: 8,
+    paddingHorizontal: 12,
+    borderRadius: 10,
+    gap: 8,
+  },
+  searchInput: {
+    flex: 1,
+    fontSize: 16,
+    padding: 0,
   },
 });

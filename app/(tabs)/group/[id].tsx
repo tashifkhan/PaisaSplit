@@ -1,3 +1,4 @@
+import { useState, useLayoutEffect } from 'react';
 import {
   View,
   Text,
@@ -5,6 +6,7 @@ import {
   ScrollView,
   Pressable,
   Animated,
+  TextInput,
 } from 'react-native';
 import { useColorScheme } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
@@ -47,11 +49,18 @@ export default function GroupTransactionScreen() {
   const params = useLocalSearchParams();
   const groupId = params.id as string;
 
-  const handleSettingsPress = () => {
-    router.push({
-      pathname: '/group/settings',
-      params: { groupId },
-    });
+  const [isSearching, setIsSearching] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
+  const searchAnimation = useMemo(() => new Animated.Value(0), []);
+
+  const toggleSearch = () => {
+    setIsSearching(!isSearching);
+    Animated.spring(searchAnimation, {
+      toValue: isSearching ? 0 : 1,
+      useNativeDriver: true,
+      friction: 12,
+      tension: 100,
+    }).start();
   };
 
   const groupData = {
@@ -121,6 +130,26 @@ export default function GroupTransactionScreen() {
     ],
   };
 
+  const filteredTransactions = useMemo(() => {
+    if (!searchQuery) return groupData.transactions;
+
+    return groupData.transactions
+      .map((month) => ({
+        date: month.date,
+        items: month.items.filter((item) =>
+          item.description.toLowerCase().includes(searchQuery.toLowerCase())
+        ),
+      }))
+      .filter((month) => month.items.length > 0);
+  }, [groupData.transactions, searchQuery]);
+
+  const handleSettingsPress = () => {
+    router.push({
+      pathname: '/group/settings',
+      params: { groupId },
+    });
+  };
+
   const headerBackground = useMemo(() => {
     return colorScheme === 'dark'
       ? (['#00000000', colors.background] as const)
@@ -145,93 +174,152 @@ export default function GroupTransactionScreen() {
 
       <View style={styles.header}>
         <Pressable
-          onPress={() => router.back()}
+          onPress={() => (isSearching ? toggleSearch() : router.back())}
           style={({ pressed }) => [
             styles.backButton,
             { opacity: pressed ? 0.7 : 1 },
           ]}
         >
           <BlurView intensity={80} style={styles.backButtonBlur}>
-            <Ionicons name="chevron-back" size={24} color={colors.text} />
+            <Ionicons
+              name={isSearching ? 'close' : 'chevron-back'}
+              size={24}
+              color={colors.text}
+            />
           </BlurView>
         </Pressable>
-        <Pressable
-          onPress={handleSettingsPress}
-          style={({ pressed }) => [
-            styles.settingsButton,
-            { opacity: pressed ? 0.7 : 1 },
-          ]}
-        >
-          <BlurView intensity={80} style={styles.backButtonBlur}>
-            <Ionicons name="settings-outline" size={24} color={colors.text} />
-          </BlurView>
-        </Pressable>
-      </View>
 
-      <View style={styles.profileSection}>
-        <View style={[styles.avatar, { backgroundColor: colors.tint }]}>
-          <Text style={styles.avatarText}>{groupData.name[0]}</Text>
-        </View>
-        <Text style={[styles.name, { color: colors.text }]}>
-          {groupData.name}
-        </Text>
-      </View>
-
-      <BlurView intensity={40} style={[styles.balanceSection, styles.card]}>
-        <LinearGradient
-          colors={[colors.tint + '20', colors.tint + '05']}
-          style={styles.cardGradient}
-        />
-        <View style={styles.cardHeader}>
-          <Text style={[styles.balanceAmount, { color: colors.text }]}>
-            ₹{groupData.totalAmount.toFixed(2)}
-          </Text>
-          <Text style={[styles.balanceLabel, { color: colors.text }]}>
-            {groupData.type === 'get' ? 'You are owed' : 'You owe'}
-          </Text>
-        </View>
-        <View style={styles.divider} />
-        {groupData.members.map((member, index) => (
-          <Text
-            key={index}
-            style={[styles.expenseBreakdown, { color: colors.text }]}
-          >
-            {member.name} {member.type === 'owe' ? 'owes' : 'gets'} ₹
-            {member.amount}
-          </Text>
-        ))}
-      </BlurView>
-
-      <View style={styles.actionButtons}>
-        <Pressable
-          style={({ pressed }) => [
-            styles.settleButton,
+        <Animated.View
+          style={[
+            styles.searchContainer,
             {
-              backgroundColor: colors.tint,
-              transform: [{ scale: pressed ? 0.98 : 1 }],
+              transform: [
+                {
+                  translateX: searchAnimation.interpolate({
+                    inputRange: [0, 1],
+                    outputRange: [50, 0], // Update translation values
+                  }),
+                },
+              ],
+              opacity: searchAnimation.interpolate({
+                inputRange: [0, 1],
+                outputRange: [0, 1],
+              }),
             },
           ]}
         >
-          <Text style={styles.settleButtonText}>Add expense</Text>
-        </Pressable>
+          <BlurView intensity={80} style={styles.searchBar}>
+            <Ionicons name="search" size={20} color={colors.text} />
+            <TextInput
+              style={[styles.searchInput, { color: colors.text }]}
+              placeholder="Search transactions..."
+              placeholderTextColor={colors.text + '80'}
+              value={searchQuery}
+              onChangeText={setSearchQuery}
+            />
+          </BlurView>
+        </Animated.View>
 
-        <Pressable
-          style={({ pressed }) => [
-            styles.remindButton,
-            {
-              backgroundColor: colors.background,
-              transform: [{ scale: pressed ? 0.98 : 1 }],
-            },
-          ]}
-        >
-          <Text style={[styles.remindButtonText, { color: colors.tint }]}>
-            Settle up
-          </Text>
-        </Pressable>
+        {!isSearching ? (
+          <>
+            <Pressable
+              onPress={toggleSearch}
+              style={({ pressed }) => [
+                styles.searchButton,
+                { opacity: pressed ? 0.7 : 1 },
+              ]}
+            >
+              <BlurView intensity={80} style={styles.backButtonBlur}>
+                <Ionicons name="search" size={24} color={colors.text} />
+              </BlurView>
+            </Pressable>
+            <Pressable
+              onPress={handleSettingsPress}
+              style={({ pressed }) => [
+                styles.settingsButton,
+                { opacity: pressed ? 0.7 : 1 },
+              ]}
+            >
+              <BlurView intensity={80} style={styles.backButtonBlur}>
+                <Ionicons
+                  name="settings-outline"
+                  size={24}
+                  color={colors.text}
+                />
+              </BlurView>
+            </Pressable>
+          </>
+        ) : null}
       </View>
+
+      {!isSearching ? (
+        <>
+          <View style={styles.profileSection}>
+            <View style={[styles.avatar, { backgroundColor: colors.tint }]}>
+              <Text style={styles.avatarText}>{groupData.name[0]}</Text>
+            </View>
+            <Text style={[styles.name, { color: colors.text }]}>
+              {groupData.name}
+            </Text>
+          </View>
+
+          <BlurView intensity={40} style={[styles.balanceSection, styles.card]}>
+            <LinearGradient
+              colors={[colors.tint + '20', colors.tint + '05']}
+              style={styles.cardGradient}
+            />
+            <View style={styles.cardHeader}>
+              <Text style={[styles.balanceAmount, { color: colors.text }]}>
+                ₹{groupData.totalAmount.toFixed(2)}
+              </Text>
+              <Text style={[styles.balanceLabel, { color: colors.text }]}>
+                {groupData.type === 'get' ? 'You are owed' : 'You owe'}
+              </Text>
+            </View>
+            <View style={styles.divider} />
+            {groupData.members.map((member, index) => (
+              <Text
+                key={index}
+                style={[styles.expenseBreakdown, { color: colors.text }]}
+              >
+                {member.name} {member.type === 'owe' ? 'owes' : 'gets'} ₹
+                {member.amount}
+              </Text>
+            ))}
+          </BlurView>
+
+          <View style={styles.actionButtons}>
+            <Pressable
+              style={({ pressed }) => [
+                styles.settleButton,
+                {
+                  backgroundColor: colors.tint,
+                  transform: [{ scale: pressed ? 0.98 : 1 }],
+                },
+              ]}
+            >
+              <Text style={styles.settleButtonText}>Add expense</Text>
+            </Pressable>
+
+            <Pressable
+              style={({ pressed }) => [
+                styles.remindButton,
+                {
+                  backgroundColor: colors.background,
+                  transform: [{ scale: pressed ? 0.98 : 1 }],
+                },
+              ]}
+            >
+              <Text style={[styles.remindButtonText, { color: colors.tint }]}>
+                Settle up
+              </Text>
+            </Pressable>
+          </View>
+        </>
+      ) : null}
 
       <View style={styles.transactionList}>
-        {groupData.transactions.map((month, monthIndex) => (
+        {filteredTransactions.map((month, monthIndex) => (
           <View key={monthIndex} style={styles.monthGroup}>
             <Text
               style={[
@@ -521,5 +609,35 @@ const styles = StyleSheet.create({
   amountText: {
     fontSize: 16,
     fontWeight: '600',
+  },
+  searchContainer: {
+    flex: 1,
+    marginLeft: 8,
+    marginRight: 8,
+  },
+  searchBar: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    borderRadius: 12,
+    backgroundColor: '#FFFFFF30',
+    overflow: 'hidden',
+    borderWidth: 1,
+    borderColor: '#FFFFFF20',
+  },
+  searchInput: {
+    flex: 1,
+    marginLeft: 8,
+    fontSize: 16,
+    paddingVertical: 4,
+  },
+  searchButton: {
+    zIndex: 2,
+    position: 'absolute',
+    right: 62,
+    top: 60,
+    borderRadius: 20,
+    overflow: 'hidden',
   },
 });
