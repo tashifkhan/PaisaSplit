@@ -44,7 +44,15 @@ export default function GroupTransactionScreen() {
   const colorScheme = useColorScheme();
   const colors = Colors[colorScheme ?? 'light'];
   const router = useRouter();
-  const { id } = useLocalSearchParams();
+  const params = useLocalSearchParams();
+  const groupId = params.id as string;
+
+  const handleSettingsPress = () => {
+    router.push({
+      pathname: '/group/settings',
+      params: { groupId },
+    });
+  };
 
   const groupData = {
     name: 'Chakna',
@@ -145,6 +153,17 @@ export default function GroupTransactionScreen() {
         >
           <BlurView intensity={80} style={styles.backButtonBlur}>
             <Ionicons name="chevron-back" size={24} color={colors.text} />
+          </BlurView>
+        </Pressable>
+        <Pressable
+          onPress={handleSettingsPress}
+          style={({ pressed }) => [
+            styles.settingsButton,
+            { opacity: pressed ? 0.7 : 1 },
+          ]}
+        >
+          <BlurView intensity={80} style={styles.backButtonBlur}>
+            <Ionicons name="settings-outline" size={24} color={colors.text} />
           </BlurView>
         </Pressable>
       </View>
@@ -476,6 +495,12 @@ const styles = StyleSheet.create({
   },
   backButton: {
     zIndex: 2,
+  },
+  settingsButton: {
+    zIndex: 2,
+    position: 'absolute',
+    right: 16,
+    top: 60,
   },
   backButtonBlur: {
     borderRadius: 20,
