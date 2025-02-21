@@ -47,7 +47,6 @@ export default function ProfileScreen() {
         {[
           { icon: 'person-outline' as const, title: 'Account Settings' },
           { icon: 'notifications-outline' as const, title: 'Notifications' },
-          { icon: 'card-outline' as const, title: 'Payment Methods' },
           { icon: 'stats-chart-outline' as const, title: 'Spending Reports' },
           { icon: 'settings-outline' as const, title: 'Preferences' },
           { icon: 'help-circle-outline' as const, title: 'Help & Support' },

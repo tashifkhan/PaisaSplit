@@ -1,135 +1,272 @@
-import { View, Text, StyleSheet, ScrollView } from 'react-native';
+import {
+  View,
+  Text,
+  StyleSheet,
+  ScrollView,
+  Pressable,
+  Animated,
+} from 'react-native';
 import { useColorScheme } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import Colors from '@/constants/Colors';
+import { useState, useRef } from 'react';
 
 export default function ActivityScreen() {
   const colorScheme = useColorScheme();
   const colors = Colors[colorScheme ?? 'light'];
+  const [selectedFilter, setSelectedFilter] = useState('all');
+  const scrollY = useRef(new Animated.Value(0)).current;
+
+  const filters = [
+    { id: 'all', label: 'All' },
+    { id: 'expenses', label: 'Expenses' },
+    { id: 'payments', label: 'Payments' },
+    { id: 'groups', label: 'Groups' },
+  ];
+
+  const headerOpacity = scrollY.interpolate({
+    inputRange: [0, 60],
+    outputRange: [1, 0],
+    extrapolate: 'clamp',
+  });
 
   return (
-    <ScrollView
-      style={[styles.container, { backgroundColor: colors.background }]}
-    >
-      <View style={styles.header}>
+    <View style={[styles.container, { backgroundColor: colors.background }]}>
+      <Animated.View style={[styles.header, { opacity: headerOpacity }]}>
         <Text style={[styles.title, { color: colors.text }]}>Activity</Text>
-      </View>
+      </Animated.View>
 
-      <View style={styles.activityList}>
-        {[
-          {
-            date: 'March 14',
-            activities: [
-              {
-                type: 'expense',
-                category: 'Food',
-                amount: 600.0,
-                paidBy: 'John',
-                currency: 'INR',
-                yourShare: 300.0,
-              },
-              {
-                type: 'payment',
-                amount: 120.0,
-                from: 'You',
-                to: 'Sarah',
-                currency: 'INR',
-              },
-              {
-                type: 'expense',
-                category: 'Gas',
-                amount: 100.0,
-                paidBy: 'You',
-                currency: 'INR',
-                yourShare: 50.0,
-              },
-            ],
-          },
-          {
-            date: 'March 13',
-            activities: [
-              {
-                type: 'expense',
-                category: 'Movie',
-                amount: 500.0,
-                paidBy: 'You',
-                currency: 'INR',
-                yourShare: 250.0,
-              },
-              {
-                type: 'expense',
-                category: 'Dinner',
-                amount: 250.0,
-                paidBy: 'Mike',
-                currency: 'INR',
-                yourShare: 125.0,
-              },
-            ],
-          },
-        ].map((day, dayIndex) => (
-          <View key={dayIndex} style={styles.dayGroup}>
-            <Text style={[styles.dateHeader, { color: colors.text }]}>
-              {day.date}
-            </Text>
-            {day.activities.map((activity, activityIndex) => (
-              <View
-                key={activityIndex}
+      <View style={styles.filterContainer}>
+        <ScrollView
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          contentContainerStyle={styles.filterScroll}
+        >
+          {filters.map((filter) => (
+            <Pressable
+              key={filter.id}
+              onPress={() => setSelectedFilter(filter.id)}
+              style={[
+                styles.filterButton,
+                selectedFilter === filter.id && {
+                  backgroundColor: colors.tint,
+                },
+              ]}
+            >
+              <Text
                 style={[
-                  styles.activityItem,
-                  {
-                    backgroundColor:
-                      colorScheme === 'dark' ? '#1C1C1E' : '#F2F2F7',
-                  },
+                  styles.filterText,
+                  selectedFilter === filter.id
+                    ? styles.filterTextSelected
+                    : { color: colors.text },
                 ]}
               >
-                <View style={styles.activityIcon}>
-                  <Ionicons
-                    name={
-                      activity.type === 'payment' ? 'swap-horizontal' : 'cart'
-                    }
-                    size={24}
-                    color={colors.tint}
-                  />
-                </View>
-                <View style={styles.activityDetails}>
-                  <View style={styles.activityHeader}>
-                    <Text
-                      style={[styles.activityTitle, { color: colors.text }]}
-                    >
-                      {activity.type === 'payment'
-                        ? `${activity.from} paid ${activity.to}`
-                        : activity.category}
-                    </Text>
-                    <Text
-                      style={[styles.activityAmount, { color: colors.text }]}
-                    >
-                      {activity.currency} {activity.amount.toFixed(2)}
-                    </Text>
-                  </View>
-                  <Text
-                    style={[
-                      styles.activityMeta,
-                      { color: colorScheme === 'dark' ? '#666' : '#999' },
+                {filter.label}
+              </Text>
+            </Pressable>
+          ))}
+        </ScrollView>
+      </View>
+
+      <ScrollView style={styles.scrollView} scrollEventThrottle={16}>
+        <View style={styles.activityList}>
+          {[
+            {
+              date: 'Today',
+              activities: [
+                {
+                  type: 'expense',
+                  category: 'Food',
+                  amount: 600.0,
+                  paidBy: 'John',
+                  currency: 'INR',
+                  yourShare: 300.0,
+                  group: 'Lunch Group',
+                  status: 'pending',
+                  paymentMethod: 'UPI',
+                  notes: 'Team lunch at Big Chill',
+                },
+                {
+                  type: 'payment',
+                  amount: 120.0,
+                  from: 'You',
+                  to: 'Sarah',
+                  currency: 'INR',
+                  status: 'completed',
+                  paymentMethod: 'Bank Transfer',
+                  notes: 'Movie tickets settlement',
+                },
+              ],
+            },
+            {
+              date: 'Yesterday',
+              activities: [
+                {
+                  type: 'expense',
+                  category: 'Movie',
+                  amount: 500.0,
+                  paidBy: 'You',
+                  currency: 'INR',
+                  yourShare: 250.0,
+                  group: 'Weekend Group',
+                  status: 'settled',
+                  paymentMethod: 'Cash',
+                  notes: 'Oppenheimer IMAX',
+                },
+              ],
+            },
+          ].map((day, dayIndex) => (
+            <View key={dayIndex} style={styles.dayGroup}>
+              <Text style={[styles.dateHeader, { color: colors.text }]}>
+                {day.date}
+              </Text>
+              {day.activities
+                .filter(
+                  (activity) =>
+                    selectedFilter === 'all' ||
+                    (selectedFilter === 'expenses' &&
+                      activity.type === 'expense') ||
+                    (selectedFilter === 'payments' &&
+                      activity.type === 'payment') ||
+                    (selectedFilter === 'groups' && activity.group)
+                )
+                .map((activity, activityIndex) => (
+                  <Pressable
+                    key={activityIndex}
+                    style={({ pressed }) => [
+                      styles.activityItem,
+                      {
+                        backgroundColor:
+                          colorScheme === 'dark' ? '#1C1C1E' : '#F2F2F7',
+                        transform: [{ scale: pressed ? 0.98 : 1 }],
+                      },
                     ]}
                   >
-                    {activity.type === 'expense'
-                      ? `${activity.paidBy} paid · your share ${
-                          activity.currency
-                        } ${(activity.yourShare ?? 0).toFixed(2)}`
-                      : `${activity.currency} ${activity.amount.toFixed(2)}`}
-                  </Text>
-                </View>
-              </View>
-            ))}
-          </View>
-        ))}
-      </View>
-    </ScrollView>
+                    <View
+                      style={[
+                        styles.activityIcon,
+                        { backgroundColor: `${colors.tint}20` },
+                      ]}
+                    >
+                      <Ionicons
+                        name={
+                          activity.type === 'payment'
+                            ? 'swap-horizontal'
+                            : activity.category?.toLowerCase() === 'food'
+                            ? 'restaurant'
+                            : activity.category?.toLowerCase() === 'movie'
+                            ? 'film'
+                            : 'cart'
+                        }
+                        size={24}
+                        color={colors.tint}
+                      />
+                    </View>
+                    <View style={styles.activityDetails}>
+                      <View style={styles.activityHeader}>
+                        <View style={styles.activityTitleContainer}>
+                          <Text
+                            style={[
+                              styles.activityTitle,
+                              { color: colors.text },
+                            ]}
+                          >
+                            {activity.type === 'payment'
+                              ? `${activity.from} paid ${activity.to}`
+                              : activity.category}
+                          </Text>
+                          {activity.group && (
+                            <Text
+                              style={[
+                                styles.groupTag,
+                                { backgroundColor: `${colors.tint}20` },
+                              ]}
+                            >
+                              {activity.group}
+                            </Text>
+                          )}
+                        </View>
+                        <Text
+                          style={[
+                            styles.activityAmount,
+                            {
+                              color:
+                                activity.type === 'payment'
+                                  ? colors.positive
+                                  : colors.text,
+                            },
+                          ]}
+                        >
+                          {activity.currency} {activity.amount.toFixed(2)}
+                        </Text>
+                      </View>
+                      <View style={styles.activityMetaContainer}>
+                        <Text
+                          style={[
+                            styles.activityMeta,
+                            { color: colorScheme === 'dark' ? '#666' : '#999' },
+                          ]}
+                        >
+                          {activity.type === 'expense'
+                            ? `${activity.paidBy} paid · your share ${
+                                activity.currency
+                              } ${(activity.yourShare ?? 0).toFixed(2)}`
+                            : `${activity.paymentMethod}`}
+                        </Text>
+                        <View
+                          style={[
+                            styles.statusIndicator,
+                            {
+                              backgroundColor:
+                                activity.status === 'completed' ||
+                                activity.status === 'settled'
+                                  ? colors.positive + '20'
+                                  : colors.negative + '20',
+                            },
+                          ]}
+                        >
+                          <Text
+                            style={[
+                              styles.statusText,
+                              {
+                                color:
+                                  activity.status === 'completed' ||
+                                  activity.status === 'settled'
+                                    ? colors.positive
+                                    : colors.negative,
+                              },
+                            ]}
+                          >
+                            {activity.status}
+                          </Text>
+                        </View>
+                      </View>
+                      {activity.notes && (
+                        <Text
+                          style={[
+                            styles.notes,
+                            { color: colorScheme === 'dark' ? '#666' : '#999' },
+                          ]}
+                        >
+                          {activity.notes}
+                        </Text>
+                      )}
+                    </View>
+                  </Pressable>
+                ))}
+            </View>
+          ))}
+        </View>
+      </ScrollView>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
+    flex: 1,
+  },
+  scrollView: {
     flex: 1,
   },
   header: {
@@ -139,6 +276,27 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 34,
     fontWeight: 'bold',
+  },
+  filterContainer: {
+    paddingVertical: 8,
+    zIndex: 1,
+  },
+  filterScroll: {
+    paddingHorizontal: 16,
+    gap: 8,
+  },
+  filterButton: {
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+    borderRadius: 20,
+    backgroundColor: '#00000010',
+  },
+  filterText: {
+    fontSize: 15,
+    fontWeight: '600',
+  },
+  filterTextSelected: {
+    color: 'white',
   },
   activityList: {
     padding: 16,
@@ -161,28 +319,62 @@ const styles = StyleSheet.create({
     width: 40,
     height: 40,
     borderRadius: 20,
-    backgroundColor: '#2CC2BA20',
     justifyContent: 'center',
     alignItems: 'center',
     marginRight: 12,
   },
   activityDetails: {
     flex: 1,
+    gap: 4,
   },
   activityHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    marginBottom: 4,
+    alignItems: 'flex-start',
+  },
+  activityTitleContainer: {
+    flex: 1,
+    marginRight: 8,
   },
   activityTitle: {
     fontSize: 17,
     fontWeight: '500',
   },
+  groupTag: {
+    marginTop: 4,
+    paddingHorizontal: 8,
+    paddingVertical: 2,
+    borderRadius: 4,
+    overflow: 'hidden',
+    fontSize: 12,
+    fontWeight: '500',
+    alignSelf: 'flex-start',
+  },
   activityAmount: {
     fontSize: 17,
     fontWeight: '600',
   },
+  activityMetaContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
   activityMeta: {
-    fontSize: 15,
+    fontSize: 13,
+    flex: 1,
+  },
+  statusIndicator: {
+    paddingHorizontal: 8,
+    paddingVertical: 2,
+    borderRadius: 4,
+  },
+  statusText: {
+    fontSize: 12,
+    fontWeight: '500',
+    textTransform: 'capitalize',
+  },
+  notes: {
+    fontSize: 13,
+    marginTop: 4,
   },
 });
