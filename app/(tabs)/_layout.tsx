@@ -151,18 +151,21 @@ export default function TabLayout() {
             name="group/[id]"
             options={{
               href: null,
+              tabBarStyle: { display: 'none' },
             }}
           />
           <Tabs.Screen
             name="group/settings"
             options={{
               href: null,
+              tabBarStyle: { display: 'none' },
             }}
           />
           <Tabs.Screen
             name="user/[id]"
             options={{
               href: null,
+              tabBarStyle: { display: 'none' },
             }}
           />
         </Tabs>
