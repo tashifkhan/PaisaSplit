@@ -263,7 +263,20 @@ export default function GroupTransactionScreen() {
             </Text>
           </View>
 
-          <BlurView intensity={40} style={[styles.balanceSection, styles.card]}>
+          <BlurView
+            intensity={40}
+            style={[
+              styles.balanceSection,
+              styles.card,
+              // {
+              //   shadowColor: '#000',
+              //   shadowOffset: { width: 0, height: 4 },
+              //   shadowOpacity: colorScheme === 'dark' ? 0.3 : 0.15,
+              //   shadowRadius: 12,
+              //   elevation: 8,
+              // },
+            ]}
+          >
             <LinearGradient
               colors={[colors.tint + '20', colors.tint + '05']}
               style={styles.cardGradient}
@@ -295,6 +308,11 @@ export default function GroupTransactionScreen() {
                 {
                   backgroundColor: colors.tint,
                   transform: [{ scale: pressed ? 0.98 : 1 }],
+                  shadowColor: '#000',
+                  shadowOffset: { width: 0, height: 4 },
+                  shadowOpacity: colorScheme === 'dark' ? 0.3 : 0.15,
+                  shadowRadius: 12,
+                  elevation: 8,
                 },
               ]}
             >
@@ -307,6 +325,11 @@ export default function GroupTransactionScreen() {
                 {
                   backgroundColor: colors.background,
                   transform: [{ scale: pressed ? 0.98 : 1 }],
+                  shadowColor: '#000',
+                  shadowOffset: { width: 0, height: 4 },
+                  shadowOpacity: colorScheme === 'dark' ? 0.3 : 0.15,
+                  shadowRadius: 12,
+                  elevation: 8,
                 },
               ]}
             >
@@ -341,6 +364,11 @@ export default function GroupTransactionScreen() {
                     backgroundColor:
                       colorScheme === 'dark' ? '#1C1C1E' : '#F2F2F7',
                     transform: [{ scale: pressed ? 0.98 : 1 }],
+                    shadowColor: '#000',
+                    shadowOffset: { width: 0, height: 2 },
+                    shadowOpacity: colorScheme === 'dark' ? 0.3 : 0.1,
+                    shadowRadius: 8,
+                    elevation: 3,
                   },
                 ]}
               >
@@ -512,6 +540,11 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     borderWidth: 1.5,
     borderColor: '#2CC2BA40',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.2,
+    shadowRadius: 8,
+    elevation: 4,
   },
   remindButtonText: {
     fontSize: 16,

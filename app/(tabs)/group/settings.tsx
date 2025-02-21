@@ -56,6 +56,11 @@ export default function GroupSettingsScreen() {
               styles.inputGroup,
               {
                 backgroundColor: colorScheme === 'dark' ? '#1C1C1E' : '#F2F2F7',
+                shadowColor: '#000',
+                shadowOffset: { width: 0, height: 2 },
+                shadowOpacity: colorScheme === 'dark' ? 0.3 : 0.1,
+                shadowRadius: 8,
+                elevation: 3,
               },
             ]}
           >
@@ -91,6 +96,11 @@ export default function GroupSettingsScreen() {
                   {
                     backgroundColor:
                       colorScheme === 'dark' ? '#1C1C1E' : '#F2F2F7',
+                    shadowColor: '#000',
+                    shadowOffset: { width: 0, height: 2 },
+                    shadowOpacity: colorScheme === 'dark' ? 0.3 : 0.1,
+                    shadowRadius: 8,
+                    elevation: 3,
                   },
                 ]}
               >
@@ -117,7 +127,17 @@ export default function GroupSettingsScreen() {
               </View>
             ))}
             <Pressable
-              style={[styles.addMemberButton, { borderColor: colors.tint }]}
+              style={[
+                styles.addMemberButton,
+                {
+                  borderColor: colors.tint,
+                  shadowColor: '#000',
+                  shadowOffset: { width: 0, height: 2 },
+                  shadowOpacity: 0.1,
+                  shadowRadius: 4,
+                  elevation: 2,
+                },
+              ]}
             >
               <Ionicons name="add" size={24} color={colors.tint} />
               <Text style={[styles.addMemberText, { color: colors.tint }]}>

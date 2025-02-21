@@ -52,6 +52,11 @@ export default function TransactionDetailScreen() {
               styles.amountCard,
               {
                 backgroundColor: colorScheme === 'dark' ? '#1C1C1E' : '#F2F2F7',
+                shadowColor: '#000',
+                shadowOffset: { width: 0, height: 4 },
+                shadowOpacity: colorScheme === 'dark' ? 0.3 : 0.15,
+                shadowRadius: 12,
+                elevation: 8,
               },
             ]}
           >
@@ -87,6 +92,11 @@ export default function TransactionDetailScreen() {
               styles.section,
               {
                 backgroundColor: colorScheme === 'dark' ? '#1C1C1E' : '#F2F2F7',
+                shadowColor: '#000',
+                shadowOffset: { width: 0, height: 2 },
+                shadowOpacity: colorScheme === 'dark' ? 0.3 : 0.1,
+                shadowRadius: 8,
+                elevation: 3,
               },
             ]}
           >
@@ -148,6 +158,11 @@ export default function TransactionDetailScreen() {
               styles.section,
               {
                 backgroundColor: colorScheme === 'dark' ? '#1C1C1E' : '#F2F2F7',
+                shadowColor: '#000',
+                shadowOffset: { width: 0, height: 2 },
+                shadowOpacity: colorScheme === 'dark' ? 0.3 : 0.1,
+                shadowRadius: 8,
+                elevation: 3,
               },
             ]}
           >
@@ -184,7 +199,17 @@ export default function TransactionDetailScreen() {
 
           <View style={styles.actions}>
             <Pressable
-              style={[styles.actionButton, { backgroundColor: colors.tint }]}
+              style={[
+                styles.actionButton,
+                {
+                  backgroundColor: colors.tint,
+                  shadowColor: '#000',
+                  shadowOffset: { width: 0, height: 4 },
+                  shadowOpacity: 0.2,
+                  shadowRadius: 8,
+                  elevation: 4,
+                },
+              ]}
             >
               <Text style={styles.actionButtonText}>Mark as Settled</Text>
             </Pressable>
