@@ -143,6 +143,12 @@ export default function BalancesScreen() {
                   backgroundColor:
                     colorScheme === 'dark' ? '#1C1C1E' : '#F2F2F7',
                   opacity: pressed ? 0.7 : 1,
+                  transform: [{ scale: pressed ? 0.98 : 1 }],
+                  shadowColor: '#000',
+                  shadowOffset: { width: 0, height: 2 },
+                  shadowOpacity: colorScheme === 'dark' ? 0.3 : 0.1,
+                  shadowRadius: 8,
+                  elevation: 3,
                 },
               ]}
             >
