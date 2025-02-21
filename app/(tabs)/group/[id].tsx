@@ -159,7 +159,7 @@ export default function GroupTransactionScreen() {
   const getDateTextColor = useMemo(() => {
     return colorScheme === 'dark'
       ? colors.text + 'E6' // Higher opacity (90%) in dark mode for better legibility
-      : colors.text + '10'; // Original opacity in light mode
+      : colors.text + '90'; // Original opacity in light mode
   }, [colorScheme, colors.text]);
 
   return (
