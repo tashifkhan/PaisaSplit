@@ -27,7 +27,7 @@ export default function GroupSettingsScreen() {
       <ScrollView style={styles.scrollView}>
         <View style={styles.header}>
           <Pressable onPress={() => router.back()}>
-            <Ionicons name="close" size={24} color={colors.text} />
+            <Ionicons name="chevron-back" size={24} color={colors.text} />
           </Pressable>
           <Text style={[styles.title, { color: colors.text }]}>
             Group settings

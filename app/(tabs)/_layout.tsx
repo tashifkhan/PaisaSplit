@@ -24,8 +24,8 @@ export default function TabLayout() {
           style={[
             styles.sidebar,
             {
-              backgroundColor: colorScheme === 'dark' ? '#000' : '#fff',
-              borderRightColor: colorScheme === 'dark' ? '#222' : '#eee',
+              backgroundColor: colorScheme === 'dark' ? '#0A0A0A' : '#fff',
+              borderRightColor: colorScheme === 'dark' ? '#222' : '#E5E7EB',
               borderRightWidth: 1,
             },
           ]}
@@ -40,6 +40,12 @@ export default function TabLayout() {
               PaisaSplit
             </Text>
           </View>
+          <View
+            style={[
+              styles.divider,
+              { backgroundColor: colorScheme === 'dark' ? '#222' : '#E5E7EB' },
+            ]}
+          />
           <View style={styles.sidebarNav}>
             {[
               { name: '', title: 'Balances', icon: 'pie-chart' },
@@ -50,10 +56,11 @@ export default function TabLayout() {
             ].map((item) => (
               <Link href={`/(tabs)/${item.name}`} key={item.name} asChild>
                 <Pressable
-                  style={({ pressed }) => [
+                  style={({ pressed, hovered }) => [
                     styles.sidebarItem,
-                    pressed && [
-                      styles.sidebarItemPressed,
+                    pressed && styles.sidebarItemPressed,
+                    hovered && [
+                      styles.sidebarItemHovered,
                       {
                         backgroundColor:
                           colorScheme === 'dark' ? '#1E293B' : '#F1F5F9',
@@ -130,7 +137,7 @@ export default function TabLayout() {
             }}
           />
           <Tabs.Screen
-            name="(activity‸-page)"
+            name="(activity-page)"
             options={{
               title: 'Activity',
               tabBarIcon: ({ color, size }) => (
@@ -159,30 +166,49 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
   },
   sidebar: {
-    width: 240,
-    paddingTop: 40,
+    width: 280,
+    paddingTop: 32,
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 1,
+      height: 0,
+    },
+    shadowOpacity: 0.1,
+    shadowRadius: 2,
+    elevation: 3,
   },
   content: {
     flex: 1,
   },
   logo: {
-    padding: 20,
+    padding: 24,
+    paddingBottom: 20,
     alignItems: 'center',
   },
   logoText: {
-    fontSize: 24,
-    fontWeight: 'bold',
+    fontSize: 28,
+    fontWeight: '700',
+    letterSpacing: -0.5,
+  },
+  divider: {
+    height: 1,
+    marginHorizontal: 24,
+    marginBottom: 16,
   },
   sidebarNav: {
-    paddingHorizontal: 16,
-    gap: 8,
+    paddingHorizontal: 12,
+    gap: 4,
   },
   sidebarItem: {
-    padding: 8,
-    opacity: 0.7,
+    padding: 12,
+    borderRadius: 8,
+    marginBottom: 2,
   },
   sidebarItemPressed: {
-    opacity: 0.7,
+    opacity: 0.8,
+  },
+  sidebarItemHovered: {
+    opacity: 1,
   },
   sidebarItemContent: {
     flexDirection: 'row',
@@ -190,14 +216,15 @@ const styles = StyleSheet.create({
     gap: 12,
   },
   iconContainer: {
-    width: 32,
-    height: 32,
+    width: 36,
+    height: 36,
     alignItems: 'center',
     justifyContent: 'center',
+    borderRadius: 8,
   },
   sidebarItemText: {
     flex: 1,
-    fontSize: 14,
+    fontSize: 15,
     fontWeight: '500',
   },
 });
