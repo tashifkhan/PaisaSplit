@@ -103,7 +103,7 @@ export default function TabLayout() {
           }}
         >
           <Tabs.Screen
-            name="index"
+            name="(balance-page)"
             options={{
               title: 'Balances',
               tabBarIcon: ({ color, size }) => (
@@ -112,7 +112,7 @@ export default function TabLayout() {
             }}
           />
           <Tabs.Screen
-            name="groups"
+            name="(groups-page)"
             options={{
               title: 'Groups',
               tabBarIcon: ({ color, size }) => (
@@ -130,7 +130,7 @@ export default function TabLayout() {
             }}
           />
           <Tabs.Screen
-            name="activity"
+            name="(activity‸-page)"
             options={{
               title: 'Activity',
               tabBarIcon: ({ color, size }) => (
@@ -145,48 +145,6 @@ export default function TabLayout() {
               tabBarIcon: ({ color, size }) => (
                 <Ionicons name="person" size={size} color={color} />
               ),
-            }}
-          />
-          <Tabs.Screen
-            name="group/[id]"
-            options={{
-              href: null,
-              tabBarStyle: { display: 'none' },
-            }}
-          />
-          <Tabs.Screen
-            name="group/settings"
-            options={{
-              href: null,
-              tabBarStyle: { display: 'none' },
-            }}
-          />
-          <Tabs.Screen
-            name="user/[id]"
-            options={{
-              href: null,
-              tabBarStyle: { display: 'none' },
-            }}
-          />
-          <Tabs.Screen
-            name="activity/[id]"
-            options={{
-              href: null,
-              tabBarStyle: { display: 'none' },
-            }}
-          />
-          <Tabs.Screen
-            name="user/transaction/[id]"
-            options={{
-              href: null,
-              tabBarStyle: { display: 'none' },
-            }}
-          />
-          <Tabs.Screen
-            name="group/transaction/[id]"
-            options={{
-              href: null,
-              tabBarStyle: { display: 'none' },
             }}
           />
         </Tabs>
