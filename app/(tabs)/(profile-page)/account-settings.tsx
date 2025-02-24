@@ -2,8 +2,11 @@ import { View, Text, StyleSheet, ScrollView, Pressable } from 'react-native';
 import { useColorScheme } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import Colors from '@/constants/Colors';
+import { useRouter } from 'expo-router';
+import { BlurView } from 'expo-blur';
 
 export default function AccountSettingsScreen() {
+  const router = useRouter();
   const colorScheme = useColorScheme();
   const colors = Colors[colorScheme ?? 'light'];
 
@@ -12,6 +15,17 @@ export default function AccountSettingsScreen() {
       style={[styles.container, { backgroundColor: colors.background }]}
     >
       <View style={styles.header}>
+        <Pressable
+          onPress={() => router.back()}
+          style={({ pressed }) => [
+            styles.backButton,
+            { opacity: pressed ? 0.7 : 1 },
+          ]}
+        >
+          <BlurView intensity={80} style={styles.backButtonBlur}>
+            <Ionicons name="chevron-back" size={24} color={colors.text} />
+          </BlurView>
+        </Pressable>
         <Text style={[styles.title, { color: colors.text }]}>
           Account Settings
         </Text>
@@ -102,12 +116,16 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   header: {
+    flexDirection: 'row',
+    alignItems: 'center',
     padding: 16,
     paddingTop: 60,
+    gap: 12,
   },
   title: {
     fontSize: 34,
     fontWeight: 'bold',
+    flex: 1,
   },
   settingsSection: {
     padding: 16,
@@ -143,5 +161,14 @@ const styles = StyleSheet.create({
   },
   settingsItemSubtitle: {
     fontSize: 14,
+  },
+  backButton: {
+    zIndex: 2,
+    borderRadius: 20,
+    overflow: 'hidden',
+  },
+  backButtonBlur: {
+    padding: 8,
+    borderRadius: 20,
   },
 });
