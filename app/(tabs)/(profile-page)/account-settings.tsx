@@ -23,12 +23,10 @@ export default function AccountSettingsScreen() {
           ]}
         >
           <BlurView intensity={80} style={styles.backButtonBlur}>
-            <Ionicons name="chevron-back" size={24} color={colors.text} />
+            <Ionicons name="chevron-back" size={20} color={colors.text} />
           </BlurView>
         </Pressable>
-        <Text style={[styles.title, { color: colors.text }]}>
-          Account Settings
-        </Text>
+        <Text style={[styles.title, { color: colors.text }]}>Settings</Text>
       </View>
 
       <View style={styles.settingsSection}>
@@ -118,14 +116,17 @@ const styles = StyleSheet.create({
   header: {
     flexDirection: 'row',
     alignItems: 'center',
-    padding: 16,
+    paddingHorizontal: 16,
     paddingTop: 60,
-    gap: 12,
+    paddingBottom: 8,
+    borderBottomWidth: 1,
+    borderBottomColor: 'rgba(150, 150, 150, 0.1)',
   },
   title: {
-    fontSize: 34,
-    fontWeight: 'bold',
+    fontSize: 24,
+    fontWeight: '600',
     flex: 1,
+    marginLeft: 8,
   },
   settingsSection: {
     padding: 16,
@@ -164,11 +165,11 @@ const styles = StyleSheet.create({
   },
   backButton: {
     zIndex: 2,
-    borderRadius: 20,
+    borderRadius: 16,
     overflow: 'hidden',
   },
   backButtonBlur: {
-    padding: 8,
-    borderRadius: 20,
+    padding: 6,
+    borderRadius: 16,
   },
 });

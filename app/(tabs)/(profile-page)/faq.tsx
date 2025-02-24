@@ -148,23 +148,26 @@ const styles = StyleSheet.create({
   header: {
     flexDirection: 'row',
     alignItems: 'center',
-    padding: 16,
+    paddingHorizontal: 16,
     paddingTop: 60,
-    gap: 12,
+    paddingBottom: 8,
+    borderBottomWidth: 1,
+    borderBottomColor: 'rgba(150, 150, 150, 0.1)',
+  },
+  title: {
+    fontSize: 24,
+    fontWeight: '600',
+    flex: 1,
+    marginLeft: 8,
   },
   backButton: {
     zIndex: 2,
-    borderRadius: 20,
+    borderRadius: 16,
     overflow: 'hidden',
   },
   backButtonBlur: {
-    padding: 8,
-    borderRadius: 20,
-  },
-  title: {
-    fontSize: 34,
-    fontWeight: 'bold',
-    flex: 1,
+    padding: 6,
+    borderRadius: 16,
   },
   section: {
     padding: 16,
