@@ -10,6 +10,7 @@ import { useColorScheme } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import Colors from '@/constants/Colors';
 import { useRouter } from 'expo-router';
+import { BlurView } from 'expo-blur';
 
 export default function ActivityDetailScreen() {
   const colorScheme = useColorScheme();
@@ -20,9 +21,17 @@ export default function ActivityDetailScreen() {
     <View style={[styles.container, { backgroundColor: colors.background }]}>
       <ScrollView style={styles.scrollView}>
         <View style={styles.header}>
-          <Pressable onPress={() => router.back()}>
+          <Pressable
+          onPress={() => router.back()}
+          style={({ pressed }) => [
+            styles.backButton,
+            { opacity: pressed ? 0.7 : 1 },
+          ]}
+        >
+          <BlurView intensity={80} style={styles.backButtonBlur}>
             <Ionicons name="chevron-back" size={24} color={colors.text} />
-          </Pressable>
+          </BlurView>
+        </Pressable>
           <Text style={[styles.title, { color: colors.text }]}>Details</Text>
           <Pressable>
             <Ionicons
@@ -339,5 +348,14 @@ const styles = StyleSheet.create({
     color: 'white',
     fontSize: 17,
     fontWeight: '600',
+  },
+  backButton: {
+    zIndex: 2,
+    borderRadius: 20,
+    overflow: 'hidden',
+  },
+  backButtonBlur: {
+    padding: 8,
+    borderRadius: 20,
   },
 });
