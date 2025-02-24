@@ -39,3 +39,5 @@ app-example
 .github
 .vscode
 .idea
+
+array_reference_example.js

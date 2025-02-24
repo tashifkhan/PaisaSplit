@@ -9,10 +9,12 @@ import {
 import { useColorScheme } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import Colors from '@/constants/Colors';
+import { useRouter } from 'expo-router';
 
 export default function ProfileScreen() {
   const colorScheme = useColorScheme();
   const colors = Colors[colorScheme ?? 'light'];
+  const router = useRouter();
 
   return (
     <ScrollView
@@ -56,11 +58,31 @@ export default function ProfileScreen() {
 
       <View style={styles.menuSection}>
         {[
-          { icon: 'person-outline' as const, title: 'Account Settings' },
-          { icon: 'notifications-outline' as const, title: 'Notifications' },
-          { icon: 'stats-chart-outline' as const, title: 'Spending Reports' },
-          { icon: 'settings-outline' as const, title: 'Preferences' },
-          { icon: 'help-circle-outline' as const, title: 'Help & Support' },
+          {
+            icon: 'person-outline' as const,
+            title: 'Account Settings',
+            link: '/(tabs)/(profile-page)/account-settings' as const,
+          },
+          {
+            icon: 'notifications-outline' as const,
+            title: 'Notifications',
+            link: '/(tabs)' as const,
+          },
+          {
+            icon: 'stats-chart-outline' as const,
+            title: 'Spending Reports',
+            link: '/(tabs)' as const,
+          },
+          {
+            icon: 'settings-outline' as const,
+            title: 'Preferences',
+            link: '/(tabs)/(profile-page)/account-settings' as const,
+          },
+          {
+            icon: 'help-circle-outline' as const,
+            title: 'Help & Support',
+            link: '/(tabs)/(profile-page)/faq' as const,
+          },
         ].map((item, index) => (
           <Pressable
             key={index}
@@ -76,6 +98,7 @@ export default function ProfileScreen() {
                 elevation: 3,
               },
             ]}
+            onPress={() => router.push(item.link)}
           >
             <View style={styles.menuItemContent}>
               <View
