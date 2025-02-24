@@ -5,6 +5,8 @@ import {
   ScrollView,
   Pressable,
   Image,
+  Linking,
+  Platform,
 } from 'react-native';
 import { useColorScheme } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
@@ -15,6 +17,14 @@ export default function ProfileScreen() {
   const colorScheme = useColorScheme();
   const colors = Colors[colorScheme ?? 'light'];
   const router = useRouter();
+
+  const openNotificationSettings = async () => {
+    if (Platform.OS === 'ios') {
+      await Linking.openSettings();
+    } else {
+      await Linking.openSettings();
+    }
+  };
 
   return (
     <ScrollView
@@ -66,12 +76,12 @@ export default function ProfileScreen() {
           {
             icon: 'notifications-outline' as const,
             title: 'Notifications',
-            link: '/(tabs)' as const,
+            onPress: openNotificationSettings,
           },
           {
             icon: 'stats-chart-outline' as const,
             title: 'Spending Reports',
-            link: '/(tabs)' as const,
+            onPress: () => {}, // TODO: Implement spending reports action
           },
           {
             icon: 'settings-outline' as const,
@@ -83,43 +93,54 @@ export default function ProfileScreen() {
             title: 'Help & Support',
             link: '/(tabs)/(profile-page)/faq' as const,
           },
-        ].map((item, index) => (
-          <Pressable
-            key={index}
-            style={({ pressed }) => [
-              styles.menuItem,
-              {
-                backgroundColor: colorScheme === 'dark' ? '#1C1C1E' : '#F2F2F7',
-                transform: [{ scale: pressed ? 0.98 : 1 }],
-                shadowColor: '#000',
-                shadowOffset: { width: 0, height: 2 },
-                shadowOpacity: colorScheme === 'dark' ? 0.3 : 0.1,
-                shadowRadius: 8,
-                elevation: 3,
-              },
-            ]}
-            onPress={() => router.push(item.link)}
-          >
-            <View style={styles.menuItemContent}>
-              <View
-                style={[
-                  styles.menuItemIcon,
-                  { backgroundColor: `${colors.tint}20` },
-                ]}
-              >
-                <Ionicons name={item.icon} size={24} color={colors.tint} />
+        ].map((item, index) =>
+          item.title === 'Notifications' && Platform.OS === 'web' ? (
+            <></>
+          ) : (
+            <Pressable
+              key={index}
+              style={({ pressed }) => [
+                styles.menuItem,
+                {
+                  backgroundColor:
+                    colorScheme === 'dark' ? '#1C1C1E' : '#F2F2F7',
+                  transform: [{ scale: pressed ? 0.98 : 1 }],
+                  shadowColor: '#000',
+                  shadowOffset: { width: 0, height: 2 },
+                  shadowOpacity: colorScheme === 'dark' ? 0.3 : 0.1,
+                  shadowRadius: 8,
+                  elevation: 3,
+                },
+              ]}
+              onPress={() => {
+                if (item.onPress) {
+                  item.onPress();
+                } else if ('link' in item) {
+                  router.push(item.link);
+                }
+              }}
+            >
+              <View style={styles.menuItemContent}>
+                <View
+                  style={[
+                    styles.menuItemIcon,
+                    { backgroundColor: `${colors.tint}20` },
+                  ]}
+                >
+                  <Ionicons name={item.icon} size={24} color={colors.tint} />
+                </View>
+                <Text style={[styles.menuItemTitle, { color: colors.text }]}>
+                  {item.title}
+                </Text>
               </View>
-              <Text style={[styles.menuItemTitle, { color: colors.text }]}>
-                {item.title}
-              </Text>
-            </View>
-            <Ionicons
-              name="chevron-forward"
-              size={24}
-              color={colorScheme === 'dark' ? '#666' : '#999'}
-            />
-          </Pressable>
-        ))}
+              <Ionicons
+                name="chevron-forward"
+                size={24}
+                color={colorScheme === 'dark' ? '#666' : '#999'}
+              />
+            </Pressable>
+          )
+        )}
       </View>
 
       <Pressable

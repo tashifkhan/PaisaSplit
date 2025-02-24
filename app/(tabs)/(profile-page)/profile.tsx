@@ -64,14 +64,9 @@ export default function ProfileScreen() {
             link: '/(tabs)/(profile-page)/account-settings' as const,
           },
           {
-            icon: 'notifications-outline' as const,
-            title: 'Notifications',
-            link: '/(tabs)' as const,
-          },
-          {
             icon: 'stats-chart-outline' as const,
             title: 'Spending Reports',
-            link: '/(tabs)' as const,
+            link: '/' as const,
           },
           {
             icon: 'settings-outline' as const,
