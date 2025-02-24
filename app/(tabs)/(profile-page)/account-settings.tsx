@@ -35,26 +35,31 @@ export default function AccountSettingsScreen() {
             icon: 'person-outline',
             title: 'Personal Information',
             subtitle: 'Update your name, email, and phone number',
+            route: '/settings/personal-info',
           },
           {
             icon: 'lock-closed-outline',
             title: 'Security',
             subtitle: 'Password and authentication settings',
+            route: '/settings/security',
           },
           {
             icon: 'globe-outline',
             title: 'Language / Currency',
             subtitle: 'Choose your preferred language / currency',
+            route: '/settings/language-currency',
           },
           {
             icon: 'shield-checkmark-outline',
             title: 'Privacy',
             subtitle:
               'Control your data and privacy settings. ps. our app is open sourced',
+            route: '/settings/privacy',
           },
         ].map((item, index) => (
           <Pressable
             key={index}
+            onPress={() => router.push(item.route as any)}
             style={({ pressed }) => [
               styles.settingsItem,
               {
