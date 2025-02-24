@@ -52,7 +52,11 @@ export default function TabLayout() {
               { name: 'groups', title: 'Groups', icon: 'people' },
               { name: 'add-expense', title: 'Add', icon: 'add-circle' },
               { name: 'activity', title: 'Activity', icon: 'list' },
-              { name: 'profile', title: 'Profile', icon: 'person' },
+              {
+                name: '(profile-page)/profile',
+                title: 'Profile',
+                icon: 'person',
+              },
             ].map((item) => (
               <Link href={`/(tabs)/${item.name}`} key={item.name} asChild>
                 <Pressable
