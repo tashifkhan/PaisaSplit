@@ -6,6 +6,7 @@ import {
   useWindowDimensions,
   Text,
   ScrollView,
+  ActivityIndicator,
 } from 'react-native';
 import { useColorScheme } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
@@ -14,6 +15,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { useState } from 'react';
 import AddExpense from '@/components/AddExpense';
 import GroupModal from '@/components/GroupModal';
+import { scanBill } from '@/utils/ocr';
 
 export default function AddExpenseScreen() {
   const colorScheme = useColorScheme();
@@ -22,9 +24,25 @@ export default function AddExpenseScreen() {
   const isDesktop = width >= 768;
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [isGroupModalVisible, setIsGroupModalVisible] = useState(false);
+  const [isScanning, setIsScanning] = useState(false);
 
-  const handleOptionPress = (type: 'scan' | 'manual') => {
-    setIsModalVisible(true);
+  const handleOptionPress = async (type: 'scan' | 'manual') => {
+    if (type === 'scan') {
+      try {
+        setIsScanning(true);
+        const result = await scanBill();
+        setIsScanning(false);
+        setIsModalVisible(true);
+        // Pass OCR result to AddExpense component
+        // You'll need to modify your AddExpense component to accept initial values
+      } catch (error) {
+        setIsScanning(false);
+        // Handle error appropriately
+        console.error('Scanning failed:', error);
+      }
+    } else {
+      setIsModalVisible(true);
+    }
   };
 
   const handleCloseModal = () => {
@@ -39,6 +57,14 @@ export default function AddExpenseScreen() {
     <SafeAreaView
       style={[styles.container, { backgroundColor: colors.background }]}
     >
+      {isScanning && (
+        <View style={styles.scanningOverlay}>
+          <ActivityIndicator size="large" color={colors.tint} />
+          <Text style={[styles.scanningText, { color: colors.text }]}>
+            Scanning bill...
+          </Text>
+        </View>
+      )}
       <ScrollView style={styles.scrollView}>
         <View style={styles.header}>
           <Text style={[styles.title, { color: colors.text }]}>
@@ -237,5 +263,17 @@ const styles = StyleSheet.create({
     height: '90%',
     width: '100%',
     overflow: 'hidden',
+  },
+  scanningOverlay: {
+    ...StyleSheet.absoluteFillObject,
+    backgroundColor: 'rgba(0, 0, 0, 0.7)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    zIndex: 1000,
+  },
+  scanningText: {
+    marginTop: 16,
+    fontSize: 16,
+    fontWeight: '600',
   },
 });
