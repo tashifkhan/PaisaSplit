@@ -5,6 +5,7 @@ import {
   ScrollView,
   Pressable,
   Image,
+  Linking,
   Platform,
 } from 'react-native';
 import { useColorScheme } from 'react-native';
@@ -16,6 +17,14 @@ export default function ProfileScreen() {
   const colorScheme = useColorScheme();
   const colors = Colors[colorScheme ?? 'light'];
   const router = useRouter();
+
+  const openNotificationSettings = async () => {
+    if (Platform.OS === 'ios') {
+      await Linking.openSettings();
+    } else {
+      await Linking.openSettings();
+    }
+  };
 
   return (
     <ScrollView
@@ -62,27 +71,27 @@ export default function ProfileScreen() {
           {
             icon: 'person-outline' as const,
             title: 'Account Settings',
-            link: '/(tabs)/(profile-page)/account-settings' as const,
+            link: '/(tabs)/(profile-page)/profile/account-settings' as const,
           },
           {
             icon: 'notifications-outline' as const,
             title: 'Notifications',
-            link: '/' as const,
+            onPress: openNotificationSettings,
           },
           {
             icon: 'stats-chart-outline' as const,
             title: 'Spending Reports',
-            onPress: () => {}, // TODO: Implement spending reports action
+            link: '/(tabs)/(profile-page)/profile/spending-report' as const,
           },
           {
             icon: 'settings-outline' as const,
             title: 'Preferences',
-            link: '/(tabs)/(profile-page)/account-settings' as const,
+            link: '/(tabs)/(profile-page)/profile/account-settings' as const,
           },
           {
             icon: 'help-circle-outline' as const,
             title: 'Help & Support',
-            link: '/(tabs)/(profile-page)/faq' as const,
+            link: '/(tabs)/(profile-page)/profile/faq' as const,
           },
         ].map((item, index) =>
           item.title === 'Notifications' && Platform.OS === 'web' ? (
