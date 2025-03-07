@@ -108,9 +108,14 @@ export default function TabLayout() {
             },
             tabBarActiveTintColor: Colors[colorScheme ?? 'light'].tint,
             tabBarInactiveTintColor: colorScheme === 'dark' ? '#666' : '#999',
-          }}
-          sceneContainerStyle={{
-            backgroundColor: colorScheme === 'dark' ? '#000' : '#fff',
+            tabBarBackground: () => (
+              <View
+                style={{
+                  flex: 1,
+                  backgroundColor: colorScheme === 'dark' ? '#000' : '#fff',
+                }}
+              />
+            ),
           }}
         >
           <Tabs.Screen
