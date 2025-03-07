@@ -38,7 +38,8 @@
     "react-native-svg": "15.8.0",
     "react-native-url-polyfill": "^2.0.0",
     "react-native-web": "^0.19.13",
-    "tesseract.js": "^6.0.0"
+    "tesseract.js": "^6.0.0",
+    "@react-native-community/datetimepicker": "8.2.0"
   },
   "devDependencies": {
     "@babel/core": "^7.25.2",

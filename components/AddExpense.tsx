@@ -21,6 +21,9 @@ import {
   type Currency,
 } from '@/constants/Currencies';
 
+// Import additional components for calendar functionality
+import DateTimePicker from '@react-native-community/datetimepicker';
+
 // Sample groups data - in a real app, this would come from a proper data source
 const sampleGroups = [
   { id: '1', name: 'Roommates', emoji: '🏠' },
@@ -88,6 +91,10 @@ export default function AddExpense({ onClose }: AddExpenseProps) {
       amount: 0,
     }))
   );
+
+  // Date selection states
+  const [selectedDate, setSelectedDate] = useState<Date>(new Date());
+  const [showDatePicker, setShowDatePicker] = useState(false);
 
   // Animation values
   const fadeAnim = useRef(new Animated.Value(0)).current;
@@ -257,6 +264,43 @@ export default function AddExpense({ onClose }: AddExpenseProps) {
         return 'split by exact amounts';
       default:
         return 'split equally';
+    }
+  };
+
+  // Format date for display
+  const formatDate = (date: Date): string => {
+    const today = new Date();
+    const yesterday = new Date(today);
+    yesterday.setDate(yesterday.getDate() - 1);
+
+    if (date.toDateString() === today.toDateString()) {
+      return 'Today';
+    } else if (date.toDateString() === yesterday.toDateString()) {
+      return 'Yesterday';
+    } else {
+      return date.toLocaleDateString('en-US', {
+        month: 'short',
+        day: 'numeric',
+        year:
+          today.getFullYear() !== date.getFullYear() ? 'numeric' : undefined,
+      });
+    }
+  };
+
+  // Handle date change from the date picker
+  const handleDateChange = (event: any, date?: Date) => {
+    // On Android, dismiss the modal on cancel
+    if (Platform.OS === 'android') {
+      setShowDatePicker(false);
+    }
+
+    if (date) {
+      setSelectedDate(date);
+    }
+
+    // On iOS the modal persists and needs to be manually dismissed
+    if (Platform.OS === 'ios') {
+      setShowDatePicker(false);
     }
   };
 
@@ -588,10 +632,11 @@ export default function AddExpense({ onClose }: AddExpenseProps) {
                 },
                 shadowStyle,
               ]}
+              onPress={() => setShowDatePicker(true)}
             >
               <Ionicons name="calendar" size={20} color={colors.tint} />
               <Text style={[styles.dateButtonText, { color: colors.tint }]}>
-                Today
+                {formatDate(selectedDate)}
               </Text>
             </Pressable>
 
@@ -1103,6 +1148,65 @@ export default function AddExpense({ onClose }: AddExpenseProps) {
           </View>
         </KeyboardAvoidingView>
       </Modal>
+
+      {/* Date Picker Modal */}
+      {Platform.OS === 'ios' ? (
+        <Modal
+          visible={showDatePicker}
+          animationType="slide"
+          transparent={true}
+          onRequestClose={() => setShowDatePicker(false)}
+        >
+          <View style={styles.datePickerModalOverlay}>
+            <View
+              style={[
+                styles.datePickerModalContent,
+                {
+                  backgroundColor: colorScheme === 'dark' ? '#1C1C1E' : 'white',
+                },
+              ]}
+            >
+              <View style={styles.datePickerHeader}>
+                <Pressable onPress={() => setShowDatePicker(false)}>
+                  <Text style={{ color: colors.tint }}>Cancel</Text>
+                </Pressable>
+                <Text style={[styles.datePickerTitle, { color: colors.text }]}>
+                  Select Date
+                </Text>
+                <Pressable
+                  onPress={() => {
+                    handleDateChange(null, selectedDate);
+                  }}
+                >
+                  <Text style={{ color: colors.tint, fontWeight: '600' }}>
+                    Done
+                  </Text>
+                </Pressable>
+              </View>
+
+              <DateTimePicker
+                value={selectedDate}
+                mode="date"
+                display="spinner"
+                onChange={handleDateChange}
+                themeVariant={colorScheme === 'dark' ? 'dark' : 'light'}
+                textColor={colors.text}
+                style={styles.datePickerIOS}
+              />
+            </View>
+          </View>
+        </Modal>
+      ) : (
+        // On Android, DateTimePicker itself is shown as a modal
+        showDatePicker && (
+          <DateTimePicker
+            value={selectedDate}
+            mode="date"
+            display="default"
+            onChange={handleDateChange}
+          />
+        )
+      )}
     </View>
   );
 }
@@ -1497,5 +1601,30 @@ const styles = StyleSheet.create({
     color: 'white',
     fontSize: 16,
     fontWeight: '600',
+  },
+  // Date picker styles
+  datePickerModalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0,0,0,0.5)',
+    justifyContent: 'flex-end',
+  },
+  datePickerModalContent: {
+    borderTopLeftRadius: 20,
+    borderTopRightRadius: 20,
+    padding: 20,
+  },
+  datePickerHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 20,
+  },
+  datePickerTitle: {
+    fontSize: 17,
+    fontWeight: '600',
+  },
+  datePickerIOS: {
+    height: 200,
+    marginBottom: 20,
   },
 });
