@@ -29,15 +29,13 @@ export async function scanBill(): Promise<OCRResult> {
       result.assets[0].uri,
       [
          { resize: { width: 1000 } },
-         { normalize: true },
       ],
       { format: SaveFormat.JPEG }
    )
 
    // Initialize Tesseract worker
-   const worker = await createWorker()
-   await worker.loadLanguage("eng")
-   await worker.initialize("eng")
+   const worker = await createWorker("eng")
+   await worker.reinitialize()
 
    // Perform OCR
    const { data: { text } } = await worker.recognize(processedImage.uri)
