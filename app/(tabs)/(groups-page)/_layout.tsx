@@ -1,7 +1,8 @@
 import { Stack } from 'expo-router/stack';
-import { Platform } from 'react-native';
+import { Platform, useColorScheme } from 'react-native';
 
 export default function Layout() {
+  const colorScheme = useColorScheme();
   return (
     <Stack
       screenOptions={{
@@ -10,7 +11,7 @@ export default function Layout() {
         animationDuration: 200,
         presentation: 'card',
         contentStyle: {
-          backgroundColor: Platform.OS === 'android' ? '#fff' : 'transparent',
+          backgroundColor: 'transparent',
         },
       }}
     />

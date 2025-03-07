@@ -6,9 +6,13 @@ export default function Layout() {
   return (
     <Stack
       screenOptions={{
-        presentation: 'card',
         headerShown: false,
-        animationDuration: 3,
+        animation: Platform.OS === 'android' ? 'fade_from_bottom' : 'default',
+        animationDuration: 200,
+        presentation: 'card',
+        contentStyle: {
+          backgroundColor: 'transparent',
+        },
       }}
     />
   );
