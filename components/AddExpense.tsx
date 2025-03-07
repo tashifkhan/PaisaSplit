@@ -6,6 +6,10 @@ import {
   Pressable,
   ScrollView,
   Animated,
+  Modal,
+  FlatList,
+  KeyboardAvoidingView,
+  Platform,
 } from 'react-native';
 import { useColorScheme } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
@@ -24,6 +28,23 @@ const sampleGroups = [
   { id: '3', name: 'Dinner Club', emoji: '🍽️' },
 ];
 
+// Sample friends data
+const sampleFriends = [
+  { id: '1', name: 'Tashif', emoji: '👨' },
+  { id: '2', name: 'Harleen', emoji: '👩' },
+  { id: '3', name: 'Pohi', emoji: '🧑' },
+  { id: '4', name: 'Pookie', emoji: '👧' },
+];
+
+interface Friend {
+  id: string;
+  name: string;
+  emoji: string;
+  amount?: number;
+  percentage?: number;
+  isIncluded?: boolean;
+}
+
 interface Group {
   id: string;
   name: string;
@@ -34,6 +55,14 @@ interface AddExpenseProps {
   onClose: () => void;
 }
 
+type SplitMethod = 'equally' | 'unequally' | 'percentage' | 'shares' | 'exact';
+
+interface Payer {
+  id: string;
+  name: string;
+  emoji: string;
+}
+
 export default function AddExpense({ onClose }: AddExpenseProps) {
   const colorScheme = useColorScheme();
   const colors = Colors[colorScheme ?? 'light'];
@@ -42,6 +71,23 @@ export default function AddExpense({ onClose }: AddExpenseProps) {
   const [showCurrencyPicker, setShowCurrencyPicker] = useState(false);
   const [selectedGroup, setSelectedGroup] = useState<Group | null>(null);
   const [showGroupPicker, setShowGroupPicker] = useState(false);
+
+  // New state variables
+  const [showSplitOptions, setShowSplitOptions] = useState(false);
+  const [totalAmount, setTotalAmount] = useState<string>('');
+  const [splitMethod, setSplitMethod] = useState<SplitMethod>('equally');
+  const [payer, setPayer] = useState<Payer>({
+    id: 'self',
+    name: 'you',
+    emoji: '👤',
+  });
+  const [friends, setFriends] = useState<Friend[]>(
+    sampleFriends.map((friend) => ({
+      ...friend,
+      isIncluded: true,
+      amount: 0,
+    }))
+  );
 
   // Animation values
   const fadeAnim = useRef(new Animated.Value(0)).current;
@@ -73,6 +119,29 @@ export default function AddExpense({ onClose }: AddExpenseProps) {
     }).start();
   }, [showGroupPicker]);
 
+  // Calculate per-person amounts when total or split method changes
+  useEffect(() => {
+    if (totalAmount && splitMethod === 'equally') {
+      const amount = parseFloat(totalAmount);
+      if (!isNaN(amount)) {
+        // Count included friends
+        const includedCount = friends.filter((f) => f.isIncluded).length + 1; // +1 for self
+        if (includedCount > 0) {
+          const perPersonAmount = amount / includedCount;
+
+          // Update friends with equal amounts
+          setFriends(
+            friends.map((friend) => ({
+              ...friend,
+              amount: friend.isIncluded ? perPersonAmount : 0,
+              percentage: friend.isIncluded ? 100 / includedCount : 0,
+            }))
+          );
+        }
+      }
+    }
+  }, [totalAmount, splitMethod, friends.filter((f) => f.isIncluded).length]);
+
   const inputBgColor = colorScheme === 'dark' ? '#2C2C2E' : '#F5F5F7';
   const shadowStyle = colorScheme === 'dark' ? darkShadow : lightShadow;
 
@@ -86,6 +155,109 @@ export default function AddExpense({ onClose }: AddExpenseProps) {
   const handleToggleCurrencyPicker = () => {
     if (showGroupPicker) setShowGroupPicker(false);
     setShowCurrencyPicker(!showCurrencyPicker);
+  };
+
+  // Toggle friend inclusion in the split
+  const toggleFriendInclusion = (friendId: string) => {
+    setFriends(
+      friends.map((friend) =>
+        friend.id === friendId
+          ? { ...friend, isIncluded: !friend.isIncluded }
+          : friend
+      )
+    );
+  };
+
+  // Update individual amount for a friend (for unequal splits)
+  const updateFriendAmount = (friendId: string, amount: string) => {
+    const numAmount = parseFloat(amount);
+    if (isNaN(numAmount)) return;
+
+    setFriends(
+      friends.map((friend) =>
+        friend.id === friendId ? { ...friend, amount: numAmount } : friend
+      )
+    );
+  };
+
+  // Update individual percentage for a friend
+  const updateFriendPercentage = (friendId: string, percentage: string) => {
+    const numPercentage = parseFloat(percentage);
+    if (isNaN(numPercentage)) return;
+
+    // Update this friend's percentage
+    setFriends(
+      friends.map((friend) =>
+        friend.id === friendId
+          ? { ...friend, percentage: numPercentage }
+          : friend
+      )
+    );
+
+    // Calculate amounts based on percentages if we have a total
+    if (totalAmount) {
+      const totalAmt = parseFloat(totalAmount);
+      if (!isNaN(totalAmt)) {
+        setFriends((prev) =>
+          prev.map((friend) => ({
+            ...friend,
+            amount:
+              friend.id === friendId
+                ? (numPercentage / 100) * totalAmt
+                : friend.percentage
+                ? (friend.percentage / 100) * totalAmt
+                : friend.amount,
+          }))
+        );
+      }
+    }
+  };
+
+  // Calculate total percentage allocated
+  const getTotalPercentage = () => {
+    let selfPercentage = 0;
+    // Find if user has a specific percentage set, otherwise calculate it
+    const totalFriendsPercentage = friends.reduce((sum, friend) => {
+      if (friend.isIncluded && friend.percentage !== undefined) {
+        return sum + friend.percentage;
+      }
+      return sum;
+    }, 0);
+
+    // If total exceeds 100%, return the total as is
+    if (totalFriendsPercentage >= 100) return totalFriendsPercentage;
+
+    // Otherwise, assume self takes the remainder
+    return totalFriendsPercentage + selfPercentage;
+  };
+
+  // Calculate the unallocated percentage
+  const getRemainingPercentage = () => {
+    const total = getTotalPercentage();
+    return Math.max(0, 100 - total);
+  };
+
+  // Get split summary text
+  const getSplitSummary = () => {
+    const includedCount = friends.filter((f) => f.isIncluded).length + 1; // +1 for self
+
+    switch (splitMethod) {
+      case 'equally':
+        if (includedCount === friends.length + 1) {
+          return 'split equally';
+        }
+        return `split equally among ${includedCount} people`;
+      case 'unequally':
+        return 'split unequally';
+      case 'percentage':
+        return 'split by percentage';
+      case 'shares':
+        return 'split by shares';
+      case 'exact':
+        return 'split by exact amounts';
+      default:
+        return 'split equally';
+    }
   };
 
   return (
@@ -332,6 +504,8 @@ export default function AddExpense({ onClose }: AddExpenseProps) {
               }
               keyboardType="decimal-pad"
               style={[styles.input, styles.amountInput, { color: colors.text }]}
+              value={totalAmount}
+              onChangeText={setTotalAmount}
             />
           </View>
 
@@ -379,7 +553,9 @@ export default function AddExpense({ onClose }: AddExpenseProps) {
             </Animated.View>
           )}
 
-          <View
+          {/* Enhanced split section */}
+          <Pressable
+            onPress={() => setShowSplitOptions(true)}
             style={[
               styles.splitSection,
               { backgroundColor: inputBgColor },
@@ -394,14 +570,13 @@ export default function AddExpense({ onClose }: AddExpenseProps) {
             />
             <Text style={[styles.splitText, { color: colors.text }]}>
               Paid by{' '}
-              <Text style={{ color: colors.tint, fontWeight: '600' }}>you</Text>{' '}
-              and split{' '}
               <Text style={{ color: colors.tint, fontWeight: '600' }}>
-                equally
-              </Text>
+                {payer.name === 'you' ? 'you' : payer.name}
+              </Text>{' '}
+              and {getSplitSummary()}
             </Text>
             <Ionicons name="chevron-forward" size={18} color={colors.text} />
-          </View>
+          </Pressable>
 
           <View style={styles.dateSection}>
             <Pressable
@@ -435,6 +610,499 @@ export default function AddExpense({ onClose }: AddExpenseProps) {
           </View>
         </Animated.View>
       </ScrollView>
+
+      {/* Split Options Modal */}
+      <Modal
+        visible={showSplitOptions}
+        animationType="slide"
+        transparent={true}
+        onRequestClose={() => setShowSplitOptions(false)}
+      >
+        <KeyboardAvoidingView
+          behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+          style={styles.modalOverlay}
+        >
+          <View
+            style={[
+              styles.modalContent,
+              {
+                backgroundColor: colorScheme === 'dark' ? '#1C1C1E' : 'white',
+              },
+            ]}
+          >
+            <View style={styles.modalHeader}>
+              <Text style={[styles.modalTitle, { color: colors.text }]}>
+                Split Options
+              </Text>
+              <Pressable onPress={() => setShowSplitOptions(false)}>
+                <Ionicons name="close" size={24} color={colors.text} />
+              </Pressable>
+            </View>
+
+            <ScrollView
+              style={styles.modalScrollContent}
+              showsVerticalScrollIndicator={false}
+            >
+              <View style={styles.modalSection}>
+                <Text style={[styles.sectionTitle, { color: colors.text }]}>
+                  Who paid?
+                </Text>
+                <ScrollView
+                  horizontal
+                  showsHorizontalScrollIndicator={false}
+                  contentContainerStyle={styles.payerList}
+                >
+                  <Pressable
+                    style={[
+                      styles.payerButton,
+                      payer.id === 'self' && {
+                        backgroundColor: colors.tint + '30',
+                        borderColor: colors.tint,
+                      },
+                    ]}
+                    onPress={() =>
+                      setPayer({ id: 'self', name: 'you', emoji: '👤' })
+                    }
+                  >
+                    <Text style={styles.payerEmoji}>👤</Text>
+                    <Text
+                      style={[
+                        styles.payerName,
+                        { color: colors.text },
+                        payer.id === 'self' && {
+                          color: colors.tint,
+                          fontWeight: '600',
+                        },
+                      ]}
+                    >
+                      You
+                    </Text>
+                  </Pressable>
+
+                  {friends.map((friend) => (
+                    <Pressable
+                      key={friend.id}
+                      style={[
+                        styles.payerButton,
+                        payer.id === friend.id && {
+                          backgroundColor: colors.tint + '30',
+                          borderColor: colors.tint,
+                        },
+                      ]}
+                      onPress={() =>
+                        setPayer({
+                          id: friend.id,
+                          name: friend.name,
+                          emoji: friend.emoji,
+                        })
+                      }
+                    >
+                      <Text style={styles.payerEmoji}>{friend.emoji}</Text>
+                      <Text
+                        style={[
+                          styles.payerName,
+                          { color: colors.text },
+                          payer.id === friend.id && {
+                            color: colors.tint,
+                            fontWeight: '600',
+                          },
+                        ]}
+                      >
+                        {friend.name}
+                      </Text>
+                    </Pressable>
+                  ))}
+                </ScrollView>
+              </View>
+
+              <View style={styles.modalSection}>
+                <Text style={[styles.sectionTitle, { color: colors.text }]}>
+                  How should it be split?
+                </Text>
+
+                <View style={styles.splitMethodContainer}>
+                  <Pressable
+                    style={[
+                      styles.splitMethodButton,
+                      splitMethod === 'equally' && {
+                        backgroundColor: colors.tint + '30',
+                        borderColor: colors.tint,
+                      },
+                      {
+                        borderColor:
+                          colorScheme === 'dark' ? '#333' : '#E0E0E0',
+                      },
+                    ]}
+                    onPress={() => setSplitMethod('equally')}
+                  >
+                    <Ionicons
+                      name="people"
+                      size={22}
+                      color={
+                        splitMethod === 'equally' ? colors.tint : colors.text
+                      }
+                    />
+                    <Text
+                      style={[
+                        styles.splitMethodText,
+                        { color: colors.text },
+                        splitMethod === 'equally' && {
+                          color: colors.tint,
+                          fontWeight: '600',
+                        },
+                      ]}
+                    >
+                      Equally
+                    </Text>
+                  </Pressable>
+
+                  <Pressable
+                    style={[
+                      styles.splitMethodButton,
+                      splitMethod === 'unequally' && {
+                        backgroundColor: colors.tint + '30',
+                        borderColor: colors.tint,
+                      },
+                      {
+                        borderColor:
+                          colorScheme === 'dark' ? '#333' : '#E0E0E0',
+                      },
+                    ]}
+                    onPress={() => setSplitMethod('unequally')}
+                  >
+                    <Ionicons
+                      name="pie-chart"
+                      size={22}
+                      color={
+                        splitMethod === 'unequally' ? colors.tint : colors.text
+                      }
+                    />
+                    <Text
+                      style={[
+                        styles.splitMethodText,
+                        { color: colors.text },
+                        splitMethod === 'unequally' && {
+                          color: colors.tint,
+                          fontWeight: '600',
+                        },
+                      ]}
+                    >
+                      Unequally
+                    </Text>
+                  </Pressable>
+
+                  <Pressable
+                    style={[
+                      styles.splitMethodButton,
+                      splitMethod === 'percentage' && {
+                        backgroundColor: colors.tint + '30',
+                        borderColor: colors.tint,
+                      },
+                      {
+                        borderColor:
+                          colorScheme === 'dark' ? '#333' : '#E0E0E0',
+                      },
+                    ]}
+                    onPress={() => setSplitMethod('percentage')}
+                  >
+                    <Ionicons
+                      name="analytics"
+                      size={22}
+                      color={
+                        splitMethod === 'percentage' ? colors.tint : colors.text
+                      }
+                    />
+                    <Text
+                      style={[
+                        styles.splitMethodText,
+                        { color: colors.text },
+                        splitMethod === 'percentage' && {
+                          color: colors.tint,
+                          fontWeight: '600',
+                        },
+                      ]}
+                    >
+                      Percentage
+                    </Text>
+                  </Pressable>
+                </View>
+
+                {/* Add highlight info for current method */}
+                <View style={styles.splitMethodInfo}>
+                  {splitMethod === 'equally' && (
+                    <Text
+                      style={[
+                        styles.splitMethodDescription,
+                        { color: colors.text },
+                      ]}
+                    >
+                      Everyone pays the same amount
+                    </Text>
+                  )}
+                  {splitMethod === 'unequally' && (
+                    <Text
+                      style={[
+                        styles.splitMethodDescription,
+                        { color: colors.text },
+                      ]}
+                    >
+                      Specify exact amount for each person
+                    </Text>
+                  )}
+                  {splitMethod === 'percentage' && (
+                    <Text
+                      style={[
+                        styles.splitMethodDescription,
+                        { color: colors.text },
+                      ]}
+                    >
+                      Split based on percentage contribution
+                    </Text>
+                  )}
+                </View>
+
+                {splitMethod === 'percentage' && (
+                  <View
+                    style={[
+                      styles.percentageSummary,
+                      { backgroundColor: inputBgColor },
+                    ]}
+                  >
+                    <Text style={{ color: colors.text }}>
+                      Total allocated: {getTotalPercentage().toFixed(1)}%
+                    </Text>
+                    <Text
+                      style={{
+                        color:
+                          getRemainingPercentage() > 0
+                            ? colors.positive
+                            : colors.negative,
+                        fontWeight: '600',
+                      }}
+                    >
+                      {getRemainingPercentage() > 0
+                        ? `Remaining: ${getRemainingPercentage().toFixed(1)}%`
+                        : `Over-allocated: ${Math.abs(
+                            getRemainingPercentage()
+                          ).toFixed(1)}%`}
+                    </Text>
+                  </View>
+                )}
+              </View>
+
+              <View style={styles.modalSection}>
+                <Text style={[styles.sectionTitle, { color: colors.text }]}>
+                  Who's included in the split?
+                </Text>
+
+                <View style={styles.friendsListContainer}>
+                  <View
+                    style={[
+                      styles.friendItem,
+                      {
+                        borderBottomColor:
+                          colorScheme === 'dark' ? '#333' : '#E0E0E0',
+                      },
+                    ]}
+                  >
+                    <View style={styles.friendInfo}>
+                      <Text style={styles.friendEmoji}>👤</Text>
+                      <Text style={[styles.friendName, { color: colors.text }]}>
+                        You
+                      </Text>
+                    </View>
+
+                    {splitMethod === 'equally' && (
+                      <View style={styles.amountContainer}>
+                        <Text style={{ color: colors.text }}>
+                          {selectedCurrency.symbol}{' '}
+                          {(
+                            parseFloat(totalAmount || '0') /
+                            (friends.filter((f) => f.isIncluded).length + 1)
+                          ).toFixed(2)}
+                        </Text>
+                      </View>
+                    )}
+
+                    {splitMethod === 'unequally' && (
+                      <View style={styles.amountInputContainer}>
+                        <Text style={{ color: colors.text, marginRight: 4 }}>
+                          {selectedCurrency.symbol}
+                        </Text>
+                        <TextInput
+                          style={[
+                            styles.splitAmountInput,
+                            { color: colors.text },
+                          ]}
+                          keyboardType="decimal-pad"
+                          placeholder="0.00"
+                          placeholderTextColor={
+                            colorScheme === 'dark' ? '#8E8E93' : '#A9A9B0'
+                          }
+                          defaultValue={(
+                            parseFloat(totalAmount || '0') /
+                            (friends.filter((f) => f.isIncluded).length + 1)
+                          ).toFixed(2)}
+                        />
+                      </View>
+                    )}
+
+                    {splitMethod === 'percentage' && (
+                      <View style={styles.percentageInputContainer}>
+                        <TextInput
+                          style={[
+                            styles.splitPercentageInput,
+                            { color: colors.text },
+                          ]}
+                          keyboardType="decimal-pad"
+                          placeholder="0"
+                          placeholderTextColor={
+                            colorScheme === 'dark' ? '#8E8E93' : '#A9A9B0'
+                          }
+                          defaultValue={`${(
+                            100 /
+                            (friends.filter((f) => f.isIncluded).length + 1)
+                          ).toFixed(1)}`}
+                        />
+                        <Text style={{ color: colors.text, marginLeft: 2 }}>
+                          %
+                        </Text>
+                      </View>
+                    )}
+
+                    <Ionicons
+                      name="checkmark-circle-outline"
+                      size={24}
+                      color={colors.tint}
+                    />
+                  </View>
+
+                  {friends.map((friend) => (
+                    <Pressable
+                      key={friend.id}
+                      style={[
+                        styles.friendItem,
+                        {
+                          borderBottomColor:
+                            colorScheme === 'dark' ? '#333' : '#E0E0E0',
+                        },
+                      ]}
+                      onPress={() => toggleFriendInclusion(friend.id)}
+                    >
+                      <View style={styles.friendInfo}>
+                        <Text
+                          style={[
+                            styles.friendEmoji,
+                            !friend.isIncluded && { opacity: 0.5 },
+                          ]}
+                        >
+                          {friend.emoji}
+                        </Text>
+                        <Text
+                          style={[
+                            styles.friendName,
+                            { color: colors.text },
+                            !friend.isIncluded && { opacity: 0.5 },
+                          ]}
+                        >
+                          {friend.name}
+                        </Text>
+                      </View>
+
+                      {splitMethod === 'equally' && friend.isIncluded && (
+                        <View style={styles.amountContainer}>
+                          <Text style={{ color: colors.text }}>
+                            {selectedCurrency.symbol}{' '}
+                            {(
+                              parseFloat(totalAmount || '0') /
+                              (friends.filter((f) => f.isIncluded).length + 1)
+                            ).toFixed(2)}
+                          </Text>
+                        </View>
+                      )}
+
+                      {splitMethod === 'unequally' && friend.isIncluded && (
+                        <View style={styles.amountInputContainer}>
+                          <Text style={{ color: colors.text, marginRight: 4 }}>
+                            {selectedCurrency.symbol}
+                          </Text>
+                          <TextInput
+                            style={[
+                              styles.splitAmountInput,
+                              { color: colors.text },
+                            ]}
+                            keyboardType="decimal-pad"
+                            placeholder="0.00"
+                            placeholderTextColor={
+                              colorScheme === 'dark' ? '#8E8E93' : '#A9A9B0'
+                            }
+                            defaultValue={
+                              friend.amount?.toFixed(2) ||
+                              (
+                                parseFloat(totalAmount || '0') /
+                                (friends.filter((f) => f.isIncluded).length + 1)
+                              ).toFixed(2)
+                            }
+                            onChangeText={(value) =>
+                              updateFriendAmount(friend.id, value)
+                            }
+                          />
+                        </View>
+                      )}
+
+                      {splitMethod === 'percentage' && friend.isIncluded && (
+                        <View style={styles.percentageInputContainer}>
+                          <TextInput
+                            style={[
+                              styles.splitPercentageInput,
+                              { color: colors.text },
+                            ]}
+                            keyboardType="decimal-pad"
+                            placeholder="0"
+                            placeholderTextColor={
+                              colorScheme === 'dark' ? '#8E8E93' : '#A9A9B0'
+                            }
+                            defaultValue={
+                              friend.percentage?.toFixed(1) ||
+                              `${(
+                                100 /
+                                (friends.filter((f) => f.isIncluded).length + 1)
+                              ).toFixed(1)}`
+                            }
+                            onChangeText={(value) =>
+                              updateFriendPercentage(friend.id, value)
+                            }
+                          />
+                          <Text style={{ color: colors.text, marginLeft: 2 }}>
+                            %
+                          </Text>
+                        </View>
+                      )}
+
+                      <Ionicons
+                        name={
+                          friend.isIncluded
+                            ? 'checkmark-circle-outline'
+                            : 'ellipse-outline'
+                        }
+                        size={24}
+                        color={friend.isIncluded ? colors.tint : colors.text}
+                      />
+                    </Pressable>
+                  ))}
+                </View>
+              </View>
+            </ScrollView>
+
+            <Pressable
+              style={[styles.doneButton, { backgroundColor: colors.tint }]}
+              onPress={() => setShowSplitOptions(false)}
+            >
+              <Text style={styles.doneButtonText}>Done</Text>
+            </Pressable>
+          </View>
+        </KeyboardAvoidingView>
+      </Modal>
     </View>
   );
 }
@@ -678,5 +1346,156 @@ const styles = StyleSheet.create({
     aspectRatio: 1,
     alignItems: 'center',
     justifyContent: 'center',
+  },
+  // New styles for split options
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0,0,0,0.5)',
+    justifyContent: 'flex-end',
+  },
+  modalContent: {
+    borderTopLeftRadius: 20,
+    borderTopRightRadius: 20,
+    padding: 20,
+    maxHeight: '80%',
+  },
+  modalScrollContent: {
+    flexGrow: 0,
+  },
+  modalHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 20,
+  },
+  modalTitle: {
+    fontSize: 20,
+    fontWeight: '600',
+  },
+  modalSection: {
+    marginBottom: 24,
+  },
+  sectionTitle: {
+    fontSize: 18,
+    fontWeight: '600',
+    marginBottom: 12,
+  },
+  payerList: {
+    paddingVertical: 8,
+    gap: 12,
+  },
+  payerButton: {
+    alignItems: 'center',
+    padding: 12,
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: '#E0E0E0',
+    width: 80,
+  },
+  payerEmoji: {
+    fontSize: 24,
+    marginBottom: 4,
+  },
+  payerName: {
+    fontSize: 14,
+    textAlign: 'center',
+  },
+  splitMethodContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    flexWrap: 'wrap',
+    gap: 10,
+  },
+  splitMethodButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    padding: 14,
+    borderRadius: 12,
+    borderWidth: 1,
+    flex: 1,
+    minWidth: '30%',
+    gap: 8,
+  },
+  splitMethodText: {
+    fontSize: 15,
+    fontWeight: '500',
+  },
+  splitMethodInfo: {
+    marginTop: 12,
+    alignItems: 'center',
+  },
+  splitMethodDescription: {
+    fontSize: 15,
+    opacity: 0.8,
+  },
+  percentageSummary: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    padding: 12,
+    marginTop: 10,
+    borderRadius: 8,
+  },
+  friendsListContainer: {
+    marginTop: 8,
+  },
+  friendItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingVertical: 14,
+    borderBottomWidth: 1,
+  },
+  friendInfo: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+    flex: 1,
+  },
+  friendEmoji: {
+    fontSize: 22,
+  },
+  friendName: {
+    fontSize: 16,
+  },
+  amountContainer: {
+    marginRight: 12,
+  },
+  amountInputContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginRight: 12,
+  },
+  splitAmountInput: {
+    borderBottomWidth: 1,
+    borderColor: '#CCCCCC50',
+    paddingVertical: 2,
+    minWidth: 60,
+    textAlign: 'right',
+    fontSize: 16,
+  },
+  percentageInputContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginRight: 12,
+  },
+  splitPercentageInput: {
+    borderBottomWidth: 1,
+    borderColor: '#CCCCCC50',
+    paddingVertical: 2,
+    width: 40,
+    textAlign: 'right',
+    fontSize: 16,
+  },
+  doneButton: {
+    padding: 16,
+    borderRadius: 12,
+    alignItems: 'center',
+    marginTop: 10,
+  },
+  doneButtonText: {
+    color: 'white',
+    fontSize: 16,
+    fontWeight: '600',
   },
 });
