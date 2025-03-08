@@ -7,6 +7,7 @@ import {
   Pressable,
   Animated,
   TextInput,
+  Modal,
 } from 'react-native';
 import { useColorScheme } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
@@ -14,6 +15,7 @@ import Colors from '@/constants/Colors';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { BlurView } from 'expo-blur';
 import { LinearGradient } from 'expo-linear-gradient';
+import AddExpense from '@/components/AddExpense';
 
 function AmountDisplay({
   amount,
@@ -114,6 +116,7 @@ export default function UserTransactionScreen() {
   const [isSearching, setIsSearching] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const searchAnimation = useMemo(() => new Animated.Value(0), []);
+  const [showAddExpense, setShowAddExpense] = useState(false);
 
   const toggleSearch = () => {
     setIsSearching(!isSearching);
@@ -149,237 +152,271 @@ export default function UserTransactionScreen() {
   }, [colorScheme, colors.text]);
 
   return (
-    <ScrollView
-      style={[styles.container, { backgroundColor: colors.background }]}
-    >
-      <LinearGradient
-        colors={headerBackground}
-        style={styles.headerGradient}
-        pointerEvents="none"
-      />
+    <View style={[styles.container, { backgroundColor: colors.background }]}>
+      <ScrollView
+        style={styles.scrollView}
+        showsVerticalScrollIndicator={false}
+      >
+        <LinearGradient
+          colors={headerBackground}
+          style={styles.headerGradient}
+          pointerEvents="none"
+        />
 
-      <View style={styles.header}>
-        <Pressable
-          onPress={() => (isSearching ? toggleSearch() : router.back())}
-          style={({ pressed }) => [
-            styles.backButton,
-            { opacity: pressed ? 0.7 : 1 },
-          ]}
-        >
-          <BlurView intensity={80} style={styles.backButtonBlur}>
-            <Ionicons
-              name={isSearching ? 'close' : 'chevron-back'}
-              size={24}
-              color={colors.text}
-            />
-          </BlurView>
-        </Pressable>
-
-        <Animated.View
-          style={[
-            styles.searchContainer,
-            {
-              opacity: searchAnimation.interpolate({
-                inputRange: [0, 1],
-                outputRange: [0, 1],
-              }),
-              transform: [
-                {
-                  translateX: searchAnimation.interpolate({
-                    inputRange: [0, 1],
-                    outputRange: [50, 0],
-                  }),
-                },
-              ],
-            },
-          ]}
-        >
-          <BlurView intensity={80} style={styles.searchBar}>
-            <Ionicons name="search" size={20} color={colors.text} />
-            <TextInput
-              style={[styles.searchInput, { color: colors.text }]}
-              placeholder="Search transactions..."
-              placeholderTextColor={colors.text + '80'}
-              value={searchQuery}
-              onChangeText={setSearchQuery}
-            />
-          </BlurView>
-        </Animated.View>
-
-        {!isSearching && (
+        <View style={styles.header}>
           <Pressable
-            onPress={toggleSearch}
+            onPress={() => (isSearching ? toggleSearch() : router.back())}
             style={({ pressed }) => [
-              styles.searchButton,
+              styles.backButton,
               { opacity: pressed ? 0.7 : 1 },
             ]}
           >
             <BlurView intensity={80} style={styles.backButtonBlur}>
-              <Ionicons name="search" size={24} color={colors.text} />
+              <Ionicons
+                name={isSearching ? 'close' : 'chevron-back'}
+                size={24}
+                color={colors.text}
+              />
             </BlurView>
           </Pressable>
-        )}
-      </View>
 
-      {!isSearching ? (
-        <>
-          {/* Existing profile section */}
-          <View style={styles.profileSection}>
-            <View style={[styles.avatar, { backgroundColor: colors.tint }]}>
-              <Text style={styles.avatarText}>{userData.name[0]}</Text>
-            </View>
-            <Text style={[styles.name, { color: colors.text }]}>
-              {userData.name}
-            </Text>
-          </View>
-
-          {/* Existing balance section */}
-          <BlurView intensity={40} style={[styles.balanceSection, styles.card]}>
-            <LinearGradient
-              colors={[colors.tint + '20', colors.tint + '05']}
-              style={styles.cardGradient}
-            />
-            <View style={styles.cardHeader}>
-              <Text style={[styles.balanceAmount, { color: colors.text }]}>
-                ₹{userData.totalOwed.toFixed(2)}
-              </Text>
-              <Text style={[styles.balanceLabel, { color: colors.text }]}>
-                You are owed overall
-              </Text>
-            </View>
-            <View style={styles.divider} />
-            <Text style={[styles.expenseBreakdown, { color: colors.text }]}>
-              Harleen owes you ₹{userData.nonGroupExpenses} in non-group
-              expenses
-            </Text>
-            {userData.groupExpenses.map((expense, index) => (
-              <Text
-                key={index}
-                style={[styles.expenseBreakdown, { color: colors.text }]}
-              >
-                Harleen owes you ₹{expense.amount} in "{expense.name}"
-              </Text>
-            ))}
-          </BlurView>
-
-          {/* Existing action buttons */}
-          <View style={styles.actionButtons}>
-            <Pressable
-              style={({ pressed }) => [
-                styles.settleButton,
-                {
-                  backgroundColor: colors.tint,
-                  transform: [{ scale: pressed ? 0.98 : 1 }],
-                },
-              ]}
-            >
-              <Text style={styles.settleButtonText}>Settle up</Text>
-            </Pressable>
-
-            <Pressable
-              style={({ pressed }) => [
-                styles.remindButton,
-                {
-                  backgroundColor: colors.background,
-                  transform: [{ scale: pressed ? 0.98 : 1 }],
-                },
-              ]}
-            >
-              <Text style={[styles.remindButtonText, { color: colors.tint }]}>
-                Remind
-              </Text>
-            </Pressable>
-          </View>
-        </>
-      ) : null}
-
-      <View style={styles.transactionList}>
-        {filteredTransactions.map((month, monthIndex) => (
-          <View key={monthIndex} style={styles.monthGroup}>
-            <Text
-              style={[
-                styles.monthHeader,
-                {
-                  color: colors.text,
-                  opacity: colorScheme === 'dark' ? 0.9 : 1,
-                },
-              ]}
-            >
-              {month.date}
-            </Text>
-            {month.items.map((transaction, transactionIndex) => (
-              <Pressable
-                key={transactionIndex}
-                onPress={() =>
-                  router.push(
-                    `/user/transaction/${monthIndex}-${transactionIndex}`
-                  )
-                }
-                style={({ pressed }) => [
-                  styles.transactionItem,
+          <Animated.View
+            style={[
+              styles.searchContainer,
+              {
+                opacity: searchAnimation.interpolate({
+                  inputRange: [0, 1],
+                  outputRange: [0, 1],
+                }),
+                transform: [
                   {
-                    backgroundColor:
-                      colorScheme === 'dark' ? '#1C1C1E' : '#F2F2F7',
+                    translateX: searchAnimation.interpolate({
+                      inputRange: [0, 1],
+                      outputRange: [50, 0],
+                    }),
+                  },
+                ],
+              },
+            ]}
+          >
+            <BlurView intensity={80} style={styles.searchBar}>
+              <Ionicons name="search" size={20} color={colors.text} />
+              <TextInput
+                style={[styles.searchInput, { color: colors.text }]}
+                placeholder="Search transactions..."
+                placeholderTextColor={colors.text + '80'}
+                value={searchQuery}
+                onChangeText={setSearchQuery}
+              />
+            </BlurView>
+          </Animated.View>
+
+          {!isSearching && (
+            <Pressable
+              onPress={toggleSearch}
+              style={({ pressed }) => [
+                styles.searchButton,
+                { opacity: pressed ? 0.7 : 1 },
+              ]}
+            >
+              <BlurView intensity={80} style={styles.backButtonBlur}>
+                <Ionicons name="search" size={24} color={colors.text} />
+              </BlurView>
+            </Pressable>
+          )}
+        </View>
+
+        {!isSearching ? (
+          <>
+            {/* Existing profile section */}
+            <View style={styles.profileSection}>
+              <View style={[styles.avatar, { backgroundColor: colors.tint }]}>
+                <Text style={styles.avatarText}>{userData.name[0]}</Text>
+              </View>
+              <Text style={[styles.name, { color: colors.text }]}>
+                {userData.name}
+              </Text>
+            </View>
+
+            {/* Existing balance section */}
+            <BlurView
+              intensity={40}
+              style={[styles.balanceSection, styles.card]}
+            >
+              <LinearGradient
+                colors={[colors.tint + '20', colors.tint + '05']}
+                style={styles.cardGradient}
+              />
+              <View style={styles.cardHeader}>
+                <Text style={[styles.balanceAmount, { color: colors.text }]}>
+                  ₹{userData.totalOwed.toFixed(2)}
+                </Text>
+                <Text style={[styles.balanceLabel, { color: colors.text }]}>
+                  You are owed overall
+                </Text>
+              </View>
+              <View style={styles.divider} />
+              <Text style={[styles.expenseBreakdown, { color: colors.text }]}>
+                Harleen owes you ₹{userData.nonGroupExpenses} in non-group
+                expenses
+              </Text>
+              {userData.groupExpenses.map((expense, index) => (
+                <Text
+                  key={index}
+                  style={[styles.expenseBreakdown, { color: colors.text }]}
+                >
+                  Harleen owes you ₹{expense.amount} in "{expense.name}"
+                </Text>
+              ))}
+            </BlurView>
+
+            {/* Existing action buttons */}
+            <View style={styles.actionButtons}>
+              <Pressable
+                style={({ pressed }) => [
+                  styles.settleButton,
+                  {
+                    backgroundColor: colors.tint,
                     transform: [{ scale: pressed ? 0.98 : 1 }],
                   },
                 ]}
               >
-                <View style={styles.transactionIcon}>
-                  <Ionicons
-                    name={
-                      transaction.type === 'borrowed'
-                        ? 'arrow-down'
-                        : 'arrow-up'
-                    }
-                    size={24}
-                    color={
-                      transaction.type === 'borrowed'
-                        ? colors.negative
-                        : colors.positive
-                    }
-                  />
-                </View>
-                <View style={styles.transactionDetails}>
-                  <View style={styles.transactionHeader}>
-                    <Text
-                      style={[styles.transactionTitle, { color: colors.text }]}
-                    >
-                      {transaction.description}
-                    </Text>
+                <Text style={styles.settleButtonText}>Settle up</Text>
+              </Pressable>
+
+              <Pressable
+                style={({ pressed }) => [
+                  styles.remindButton,
+                  {
+                    backgroundColor: colors.background,
+                    transform: [{ scale: pressed ? 0.98 : 1 }],
+                  },
+                ]}
+              >
+                <Text style={[styles.remindButtonText, { color: colors.tint }]}>
+                  Remind
+                </Text>
+              </Pressable>
+            </View>
+          </>
+        ) : null}
+
+        <View style={styles.transactionList}>
+          {filteredTransactions.map((month, monthIndex) => (
+            <View key={monthIndex} style={styles.monthGroup}>
+              <Text
+                style={[
+                  styles.monthHeader,
+                  {
+                    color: colors.text,
+                    opacity: colorScheme === 'dark' ? 0.9 : 1,
+                  },
+                ]}
+              >
+                {month.date}
+              </Text>
+              {month.items.map((transaction, transactionIndex) => (
+                <Pressable
+                  key={transactionIndex}
+                  onPress={() =>
+                    router.push(
+                      `/user/transaction/${monthIndex}-${transactionIndex}`
+                    )
+                  }
+                  style={({ pressed }) => [
+                    styles.transactionItem,
+                    {
+                      backgroundColor:
+                        colorScheme === 'dark' ? '#1C1C1E' : '#F2F2F7',
+                      transform: [{ scale: pressed ? 0.98 : 1 }],
+                    },
+                  ]}
+                >
+                  <View style={styles.transactionIcon}>
+                    <Ionicons
+                      name={
+                        transaction.type === 'borrowed'
+                          ? 'arrow-down'
+                          : 'arrow-up'
+                      }
+                      size={24}
+                      color={
+                        transaction.type === 'borrowed'
+                          ? colors.negative
+                          : colors.positive
+                      }
+                    />
+                  </View>
+                  <View style={styles.transactionDetails}>
+                    <View style={styles.transactionHeader}>
+                      <Text
+                        style={[
+                          styles.transactionTitle,
+                          { color: colors.text },
+                        ]}
+                      >
+                        {transaction.description}
+                      </Text>
+                      <Text
+                        style={[
+                          styles.transactionAmount,
+                          {
+                            color:
+                              transaction.type === 'borrowed'
+                                ? colors.negative
+                                : colors.positive,
+                          },
+                        ]}
+                      >
+                        <Text> ₹{transaction.yourAmount.toFixed(2)}</Text>
+                      </Text>
+                    </View>
                     <Text
                       style={[
-                        styles.transactionAmount,
+                        styles.transactionDate,
                         {
                           color:
-                            transaction.type === 'borrowed'
-                              ? colors.negative
-                              : colors.positive,
+                            colorScheme === 'dark'
+                              ? '#9999AA80' // Added 80 for 50% opacity in dark mode
+                              : getDateTextColor,
                         },
                       ]}
                     >
-                      <Text> ₹{transaction.yourAmount.toFixed(2)}</Text>
+                      {transaction.date}
                     </Text>
                   </View>
-                  <Text
-                    style={[
-                      styles.transactionDate,
-                      {
-                        color:
-                          colorScheme === 'dark'
-                            ? '#9999AA80' // Added 80 for 50% opacity in dark mode
-                            : getDateTextColor,
-                      },
-                    ]}
-                  >
-                    {transaction.date}
-                  </Text>
-                </View>
-              </Pressable>
-            ))}
-          </View>
-        ))}
-      </View>
-    </ScrollView>
+                </Pressable>
+              ))}
+            </View>
+          ))}
+        </View>
+      </ScrollView>
+
+      {/* Floating Action Button */}
+      <Pressable
+        style={({ pressed }) => [
+          styles.floatingButton,
+          {
+            backgroundColor: colors.tint,
+            opacity: pressed ? 0.9 : 1,
+            transform: [{ scale: pressed ? 0.97 : 1 }],
+          },
+        ]}
+        onPress={() => setShowAddExpense(true)}
+      >
+        <Ionicons name="add" size={28} color="white" />
+        <Text style={styles.fabText}>Add expense</Text>
+      </Pressable>
+
+      {/* AddExpense Modal */}
+      <Modal
+        visible={showAddExpense}
+        animationType="slide"
+        presentationStyle="fullScreen"
+      >
+        <AddExpense onClose={() => setShowAddExpense(false)} />
+      </Modal>
+    </View>
   );
 }
 
@@ -626,5 +663,32 @@ const styles = StyleSheet.create({
     top: 60,
     borderRadius: 20,
     overflow: 'hidden',
+  },
+  scrollView: {
+    flex: 1,
+  },
+  floatingButton: {
+    position: 'absolute',
+    right: 20,
+    bottom: 30,
+    paddingVertical: 12,
+    paddingHorizontal: 20,
+    borderRadius: 30,
+    flexDirection: 'row',
+    alignItems: 'center',
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 4,
+    },
+    shadowOpacity: 0.3,
+    shadowRadius: 4.65,
+    elevation: 8,
+  },
+  fabText: {
+    color: 'white',
+    fontSize: 16,
+    fontWeight: '600',
+    marginLeft: 8,
   },
 });
