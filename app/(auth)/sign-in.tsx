@@ -2,7 +2,6 @@ import {
   View,
   Text,
   StyleSheet,
-  TextInput,
   Pressable,
   KeyboardAvoidingView,
   Platform,
@@ -12,6 +11,7 @@ import { useState } from 'react';
 import { Link } from 'expo-router';
 import Colors from '@/constants/Colors';
 import { Ionicons } from '@expo/vector-icons';
+import { AuthInput } from '@/components/AuthInput'; // Added import
 
 export default function SignInScreen() {
   const colorScheme = useColorScheme();
@@ -46,64 +46,23 @@ export default function SignInScreen() {
         </View>
 
         <View style={styles.form}>
-          <View
-            style={[
-              styles.inputGroup,
-              {
-                backgroundColor: colorScheme === 'dark' ? '#1C1C1E' : '#F2F2F7',
-              },
-            ]}
-          >
-            <Ionicons
-              name="mail"
-              size={24}
-              color={colors.text}
-              style={styles.inputIcon}
-            />
-            <TextInput
-              placeholder="Email"
-              placeholderTextColor={colorScheme === 'dark' ? '#666' : '#999'}
-              style={[styles.input, { color: colors.text }]}
-              keyboardType="email-address"
-              autoCapitalize="none"
-              value={email}
-              onChangeText={setEmail}
-            />
-          </View>
-
-          <View
-            style={[
-              styles.inputGroup,
-              {
-                backgroundColor: colorScheme === 'dark' ? '#1C1C1E' : '#F2F2F7',
-              },
-            ]}
-          >
-            <Ionicons
-              name="lock-closed"
-              size={24}
-              color={colors.text}
-              style={styles.inputIcon}
-            />
-            <TextInput
-              placeholder="Password"
-              placeholderTextColor={colorScheme === 'dark' ? '#666' : '#999'}
-              style={[styles.input, { color: colors.text }]}
-              secureTextEntry={!showPassword}
-              value={password}
-              onChangeText={setPassword}
-            />
-            <Pressable
-              onPress={() => setShowPassword(!showPassword)}
-              style={styles.showPasswordButton}
-            >
-              <Ionicons
-                name={showPassword ? 'eye-off' : 'eye'}
-                size={24}
-                color={colorScheme === 'dark' ? '#666' : '#999'}
-              />
-            </Pressable>
-          </View>
+          <AuthInput
+            iconName="mail"
+            placeholder="Email"
+            keyboardType="email-address"
+            autoCapitalize="none"
+            value={email}
+            onChangeText={setEmail}
+          />
+          <AuthInput
+            iconName="lock-closed"
+            placeholder="Password"
+            isPassword
+            showPassword={showPassword}
+            onToggleShowPassword={() => setShowPassword(!showPassword)}
+            value={password}
+            onChangeText={setPassword}
+          />
 
           <Pressable
             style={[styles.signInButton, { backgroundColor: colors.tint }]}
@@ -157,23 +116,6 @@ const styles = StyleSheet.create({
   },
   form: {
     gap: 16,
-  },
-  inputGroup: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    padding: 12,
-    borderRadius: 10,
-  },
-  inputIcon: {
-    marginRight: 8,
-  },
-  input: {
-    flex: 1,
-    fontSize: 17,
-    padding: 0,
-  },
-  showPasswordButton: {
-    padding: 4,
   },
   signInButton: {
     padding: 16,

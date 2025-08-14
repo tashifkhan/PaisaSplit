@@ -41,3 +41,5 @@ app-example
 .idea
 
 array_reference_example.js
+DATA_*
+PROFILE_*

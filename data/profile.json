@@ -1,0 +1,86 @@
+{
+  "user": {
+    "id": "current-user",
+    "name": "Tashif",
+    "email": "developor@tashif.codes",
+    "avatar": "https://i.pravatar.cc/300",
+    "defaultCurrency": "INR",
+    "defaultLanguage": "en"
+  },
+  "menuItems": [
+    {
+      "id": "account-settings",
+      "icon": "person-outline",
+      "title": "Account Settings",
+      "link": "/(tabs)/(profile-page)/profile/account-settings"
+    },
+    {
+      "id": "notifications",
+      "icon": "notifications-outline",
+      "title": "Notifications",
+      "action": "openNotificationSettings",
+      "hideOnWeb": true
+    },
+    {
+      "id": "spending-reports",
+      "icon": "stats-chart-outline",
+      "title": "Spending Reports",
+      "link": "/(tabs)/(profile-page)/profile/spending-report"
+    },
+    {
+      "id": "preferences",
+      "icon": "settings-outline",
+      "title": "Preferences",
+      "link": "/(tabs)/(profile-page)/profile/account-settings"
+    },
+    {
+      "id": "help-support",
+      "icon": "help-circle-outline",
+      "title": "Help & Support",
+      "link": "/(tabs)/(profile-page)/profile/faq"
+    }
+  ],
+  "settingsItems": [
+    {
+      "id": "personal-info",
+      "icon": "person-outline",
+      "title": "Personal Information",
+      "subtitle": "Update your name, email, and phone number",
+      "route": "/settings/personal-info"
+    },
+    {
+      "id": "security",
+      "icon": "lock-closed-outline",
+      "title": "Security",
+      "subtitle": "Password and authentication settings",
+      "route": "/settings/security"
+    },
+    {
+      "id": "language-currency",
+      "icon": "globe-outline",
+      "title": "Language / Currency",
+      "subtitle": "Choose your preferred language / currency",
+      "route": "/settings/language-currency"
+    },
+    {
+      "id": "privacy",
+      "icon": "shield-checkmark-outline",
+      "title": "Privacy",
+      "subtitle": "Control your data and privacy settings. ps. our app is open sourced",
+      "route": "/settings/privacy"
+    }
+  ],
+  "languages": [
+    { "code": "en", "name": "English" },
+    { "code": "es", "name": "Spanish" },
+    { "code": "fr", "name": "French" },
+    { "code": "de", "name": "German" },
+    { "code": "hi", "name": "Hindi" }
+  ],
+  "currencies": [
+    { "code": "INR", "symbol": "₹", "name": "Indian Rupee" },
+    { "code": "USD", "symbol": "$", "name": "US Dollar" },
+    { "code": "EUR", "symbol": "€", "name": "Euro" },
+    { "code": "GBP", "symbol": "£", "name": "British Pound" }
+  ]
+}

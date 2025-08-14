@@ -1,0 +1,239 @@
+{
+  "defaultCurrency": "INR",
+  "periods": ["monthly", "annual"],
+  "spendingData": {
+    "annual": {
+      "total": 2547630.65,
+      "categories": [
+        {
+          "id": "food",
+          "name": "Food",
+          "amount": 850250.75,
+          "color": "#FF6B6B",
+          "icon": "restaurant"
+        },
+        {
+          "id": "transport",
+          "name": "Transport",
+          "amount": 234500.0,
+          "color": "#4ECDC4",
+          "icon": "car"
+        },
+        {
+          "id": "shopping",
+          "name": "Shopping",
+          "amount": 654330.5,
+          "color": "#45B7D1",
+          "icon": "bag"
+        },
+        {
+          "id": "bills",
+          "name": "Bills",
+          "amount": 458550.0,
+          "color": "#96CEB4",
+          "icon": "receipt"
+        },
+        {
+          "id": "entertainment",
+          "name": "Entertainment",
+          "amount": 350000.0,
+          "color": "#FFEEAD",
+          "icon": "game-controller"
+        }
+      ],
+      "people": [
+        {
+          "id": "john",
+          "name": "John",
+          "amount": 711680.25,
+          "color": "#FFB6B6"
+        },
+        {
+          "id": "sarah",
+          "name": "Sarah",
+          "amount": 519540.75,
+          "color": "#B6FFB6"
+        },
+        {
+          "id": "mike",
+          "name": "Mike",
+          "amount": 376770.5,
+          "color": "#B6B6FF"
+        },
+        {
+          "id": "radhika",
+          "name": "Radhika",
+          "amount": 425000.0,
+          "color": "#FFE4B5"
+        },
+        {
+          "id": "harleen",
+          "name": "Harleen",
+          "amount": 514639.15,
+          "color": "#E6E6FA"
+        }
+      ],
+      "groups": [
+        {
+          "id": "roommates",
+          "name": "Roommates",
+          "amount": 1038210.75,
+          "color": "#FFD700"
+        },
+        {
+          "id": "office",
+          "name": "Office",
+          "amount": 695830.0,
+          "color": "#98FB98"
+        },
+        {
+          "id": "family",
+          "name": "Family",
+          "amount": 376770.5,
+          "color": "#DDA0DD"
+        },
+        {
+          "id": "friends",
+          "name": "Friends",
+          "amount": 436819.4,
+          "color": "#FFA07A"
+        }
+      ]
+    },
+    "monthly": {
+      "total": 212302.55,
+      "categories": [
+        {
+          "id": "food",
+          "name": "Food",
+          "amount": 70854.23,
+          "color": "#FF6B6B",
+          "icon": "restaurant"
+        },
+        {
+          "id": "transport",
+          "name": "Transport",
+          "amount": 19541.67,
+          "color": "#4ECDC4",
+          "icon": "car"
+        },
+        {
+          "id": "shopping",
+          "name": "Shopping",
+          "amount": 54527.54,
+          "color": "#45B7D1",
+          "icon": "bag"
+        },
+        {
+          "id": "bills",
+          "name": "Bills",
+          "amount": 38212.5,
+          "color": "#96CEB4",
+          "icon": "receipt"
+        },
+        {
+          "id": "entertainment",
+          "name": "Entertainment",
+          "amount": 29166.67,
+          "color": "#FFEEAD",
+          "icon": "game-controller"
+        }
+      ],
+      "people": [
+        {
+          "id": "john",
+          "name": "John",
+          "amount": 59306.69,
+          "color": "#FFB6B6"
+        },
+        {
+          "id": "sarah",
+          "name": "Sarah",
+          "amount": 43295.06,
+          "color": "#B6FFB6"
+        },
+        {
+          "id": "mike",
+          "name": "Mike",
+          "amount": 31397.54,
+          "color": "#B6B6FF"
+        },
+        {
+          "id": "radhika",
+          "name": "Radhika",
+          "amount": 35416.67,
+          "color": "#FFE4B5"
+        },
+        {
+          "id": "harleen",
+          "name": "Harleen",
+          "amount": 42886.59,
+          "color": "#E6E6FA"
+        }
+      ],
+      "groups": [
+        {
+          "id": "roommates",
+          "name": "Roommates",
+          "amount": 86517.56,
+          "color": "#FFD700"
+        },
+        {
+          "id": "office",
+          "name": "Office",
+          "amount": 57985.83,
+          "color": "#98FB98"
+        },
+        {
+          "id": "family",
+          "name": "Family",
+          "amount": 31397.54,
+          "color": "#DDA0DD"
+        },
+        {
+          "id": "friends",
+          "name": "Friends",
+          "amount": 36401.62,
+          "color": "#FFA07A"
+        }
+      ]
+    }
+  },
+  "recentTransactions": [
+    {
+      "id": "txn-1",
+      "title": "Grocery Shopping",
+      "amount": 7123.5,
+      "date": "2024-01-15",
+      "category": "food"
+    },
+    {
+      "id": "txn-2",
+      "title": "Auto Rickshaw",
+      "amount": 2081.67,
+      "date": "2024-01-15",
+      "category": "transport"
+    },
+    {
+      "id": "txn-3",
+      "title": "Netflix Subscription",
+      "amount": 1332.5,
+      "date": "2024-01-14",
+      "category": "entertainment"
+    },
+    {
+      "id": "txn-4",
+      "title": "Electricity Bill",
+      "amount": 9996.0,
+      "date": "2024-01-13",
+      "category": "bills"
+    },
+    {
+      "id": "txn-5",
+      "title": "Team Lunch",
+      "amount": 4165.0,
+      "date": "2024-01-12",
+      "category": "food"
+    }
+  ]
+}

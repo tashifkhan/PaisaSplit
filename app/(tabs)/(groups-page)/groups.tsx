@@ -1,4 +1,11 @@
-import { View, Text, StyleSheet, ScrollView, Pressable, Modal } from 'react-native';
+import {
+  View,
+  Text,
+  StyleSheet,
+  ScrollView,
+  Pressable,
+  Modal,
+} from 'react-native';
 import { useColorScheme } from 'react-native';
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
@@ -7,38 +14,17 @@ import { BlurView } from 'expo-blur';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useState } from 'react';
 import GroupModal from '@/components/GroupModal';
-
-function AmountDisplay({
-  amount,
-  style,
-  showPrefix = true,
-  type,
-}: {
-  amount: number;
-  style?: any;
-  showPrefix?: boolean;
-  type?: 'get' | 'owe' | 'settled';
-}) {
-  const roundedAmount = Math.round(amount);
-  const amountString = roundedAmount.toLocaleString('en-IN');
-  const shouldSplit = amountString.length > 8;
-
-  if (shouldSplit) {
-    return (
-      <View style={styles.amountContainer}>
-        <Text style={[style, styles.amountText]}>₹{amountString}</Text>
-      </View>
-    );
-  }
-
-  return <Text style={[style]}>₹{amountString}</Text>;
-}
+import { DataService } from '@/services/DataService';
+import AmountDisplay from '@/components/AmountDisplay';
 
 export default function GroupsScreen() {
   const colorScheme = useColorScheme();
   const colors = Colors[colorScheme ?? 'light'];
   const router = useRouter();
   const [isModalVisible, setIsModalVisible] = useState(false);
+
+  // Load data from service
+  const groupData = DataService.getGroupData();
 
   const handleCloseModal = () => {
     setIsModalVisible(false);
@@ -50,7 +36,10 @@ export default function GroupsScreen() {
     >
       <View style={styles.header}>
         <Text style={[styles.title, { color: colors.text }]}>Groups</Text>
-        <Pressable style={styles.addButton} onPress={() => setIsModalVisible(true)}>
+        <Pressable
+          style={styles.addButton}
+          onPress={() => setIsModalVisible(true)}
+        >
           <Ionicons name="person-add" size={24} color={colors.tint} />
         </Pressable>
       </View>
@@ -70,7 +59,7 @@ export default function GroupsScreen() {
               Overall, you are owed
             </Text>
             <AmountDisplay
-              amount={6736.62}
+              amount={groupData.summary.overallOwed}
               style={[styles.summaryAmount, { color: colors.positive }]}
             />
           </BlurView>
@@ -78,58 +67,23 @@ export default function GroupsScreen() {
       </View>
 
       <View style={styles.groupsList}>
-        {[
-          {
-            name: 'Chakna',
-            amount: 33.75,
-            type: 'get',
-            members: ['Shashwat S.'],
-          },
-          {
-            name: 'kattt gayaaaa night out',
-            amount: 515.0,
-            type: 'get',
-            members: ['Radhika', 'Yash'],
-          },
-          {
-            name: 'Panchayat',
-            amount: 934.5,
-            type: 'owe',
-            members: ['Nipun P.', 'Shashwat S.'],
-          },
-          {
-            name: 'Sector-18',
-            amount: 30.0,
-            type: 'owe',
-            members: ['Shashwat S.'],
-          },
-          {
-            name: 'The Big Chill',
-            amount: 347.8,
-            type: 'get',
-            members: ['Harleen'],
-          },
-          {
-            name: 'Triads',
-            amount: 45.0,
-            type: 'owe',
-            members: ['Shashwat S.'],
-          },
-        ].map((group, index) => (
+        {groupData.groups.map((group, index) => (
           <Pressable
             key={index}
-            style={({ pressed }) => [{
-              backgroundColor: colorScheme === 'dark' ? '#1C1C1E' : '#F2F2F7',
-              borderRadius: 12,
-              padding: 16,
-              transform: [{ scale: pressed ? 0.98 : 1 }],
-              shadowColor: '#000',
-              shadowOffset: { width: 0, height: 2 },
-              shadowOpacity: colorScheme === 'dark' ? 0.3 : 0.1,
-              shadowRadius: 8,
-              elevation: 3,
-            }]}
-            onPress={() => router.push(`/group/${group.name.toLowerCase().replace(/\s+/g, '-')}`)}
+            style={({ pressed }) => [
+              {
+                backgroundColor: colorScheme === 'dark' ? '#1C1C1E' : '#F2F2F7',
+                borderRadius: 12,
+                padding: 16,
+                transform: [{ scale: pressed ? 0.98 : 1 }],
+                shadowColor: '#000',
+                shadowOffset: { width: 0, height: 2 },
+                shadowOpacity: colorScheme === 'dark' ? 0.3 : 0.1,
+                shadowRadius: 8,
+                elevation: 3,
+              },
+            ]}
+            onPress={() => router.push(`/group/${group.id}`)}
           >
             <View style={styles.groupInfo}>
               <View
@@ -146,14 +100,26 @@ export default function GroupsScreen() {
                     <AmountDisplay
                       amount={group.amount}
                       showPrefix={false}
-                      style={[styles.groupAmount, {
-                        color: group.type === 'get' ? colors.positive : colors.negative
-                      }]}
+                      style={[
+                        styles.groupAmount,
+                        {
+                          color:
+                            group.type === 'get'
+                              ? colors.positive
+                              : colors.negative,
+                        },
+                      ]}
                     />
                     <Ionicons
-                      name={group.type === 'get' ? 'arrow-up-circle' : 'arrow-down-circle'}
+                      name={
+                        group.type === 'get'
+                          ? 'arrow-up-circle'
+                          : 'arrow-down-circle'
+                      }
                       size={20}
-                      color={group.type === 'get' ? colors.positive : colors.negative}
+                      color={
+                        group.type === 'get' ? colors.positive : colors.negative
+                      }
                     />
                   </View>
                 </View>

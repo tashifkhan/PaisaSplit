@@ -12,11 +12,17 @@ import { useColorScheme } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import Colors from '@/constants/Colors';
 import { useRouter } from 'expo-router';
+import { DataService } from '@/services/DataService';
 
 export default function ProfileScreen() {
   const colorScheme = useColorScheme();
   const colors = Colors[colorScheme ?? 'light'];
   const router = useRouter();
+
+  // Load data from service
+  const profileData = DataService.getProfileData();
+  const user = profileData.user;
+  const menuItems = profileData.menuItems;
 
   const openNotificationSettings = async () => {
     if (Platform.OS === 'ios') {
@@ -47,58 +53,29 @@ export default function ProfileScreen() {
             },
           ]}
         >
-          <Image
-            source={{ uri: 'https://i.pravatar.cc/300' }}
-            style={styles.avatar}
-          />
+          <Image source={{ uri: user.avatar }} style={styles.avatar} />
           <Pressable style={styles.editAvatarButton}>
             <Ionicons name="camera" size={20} color="white" />
           </Pressable>
         </View>
-        <Text style={[styles.name, { color: colors.text }]}>Tashif</Text>
+        <Text style={[styles.name, { color: colors.text }]}>{user.name}</Text>
         <Text
           style={[
             styles.email,
             { color: colorScheme === 'dark' ? '#666' : '#999' },
           ]}
         >
-          developor@tashif.codes
+          {user.email}
         </Text>
       </View>
 
       <View style={styles.menuSection}>
-        {[
-          {
-            icon: 'person-outline' as const,
-            title: 'Account Settings',
-            link: '/(tabs)/(profile-page)/profile/account-settings' as const,
-          },
-          {
-            icon: 'notifications-outline' as const,
-            title: 'Notifications',
-            onPress: openNotificationSettings,
-          },
-          {
-            icon: 'stats-chart-outline' as const,
-            title: 'Spending Reports',
-            link: '/(tabs)/(profile-page)/profile/spending-report' as const,
-          },
-          {
-            icon: 'settings-outline' as const,
-            title: 'Preferences',
-            link: '/(tabs)/(profile-page)/profile/account-settings' as const,
-          },
-          {
-            icon: 'help-circle-outline' as const,
-            title: 'Help & Support',
-            link: '/(tabs)/(profile-page)/profile/faq' as const,
-          },
-        ].map((item, index) =>
-          item.title === 'Notifications' && Platform.OS === 'web' ? (
-            <></>
+        {menuItems.map((item, index) =>
+          item.hideOnWeb && Platform.OS === 'web' ? (
+            <View key={item.id} />
           ) : (
             <Pressable
-              key={index}
+              key={item.id}
               style={({ pressed }) => [
                 styles.menuItem,
                 {
@@ -113,10 +90,10 @@ export default function ProfileScreen() {
                 },
               ]}
               onPress={() => {
-                if (item.onPress) {
-                  item.onPress();
-                } else if ('link' in item) {
-                  router.push(item.link);
+                if (item.action === 'openNotificationSettings') {
+                  openNotificationSettings();
+                } else if (item.link) {
+                  router.push(item.link as any);
                 }
               }}
             >
@@ -127,7 +104,11 @@ export default function ProfileScreen() {
                     { backgroundColor: `${colors.tint}20` },
                   ]}
                 >
-                  <Ionicons name={item.icon} size={24} color={colors.tint} />
+                  <Ionicons
+                    name={item.icon as any}
+                    size={24}
+                    color={colors.tint}
+                  />
                 </View>
                 <Text style={[styles.menuItemTitle, { color: colors.text }]}>
                   {item.title}

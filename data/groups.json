@@ -1,0 +1,49 @@
+{
+  "summary": {
+    "overallOwed": 6736.62
+  },
+  "groups": [
+    {
+      "id": "chakna",
+      "name": "Chakna",
+      "amount": 33.75,
+      "type": "get",
+      "members": ["Shashwat S."]
+    },
+    {
+      "id": "kattt-gayaaaa-night-out",
+      "name": "kattt gayaaaa night out",
+      "amount": 515.0,
+      "type": "get",
+      "members": ["Radhika", "Yash"]
+    },
+    {
+      "id": "panchayat",
+      "name": "Panchayat",
+      "amount": 934.5,
+      "type": "owe",
+      "members": ["Nipun P.", "Shashwat S."]
+    },
+    {
+      "id": "sector-18",
+      "name": "Sector-18",
+      "amount": 30.0,
+      "type": "owe",
+      "members": ["Shashwat S."]
+    },
+    {
+      "id": "the-big-chill",
+      "name": "The Big Chill",
+      "amount": 347.8,
+      "type": "get",
+      "members": ["Harleen"]
+    },
+    {
+      "id": "triads",
+      "name": "Triads",
+      "amount": 45.0,
+      "type": "owe",
+      "members": ["Shashwat S."]
+    }
+  ]
+}

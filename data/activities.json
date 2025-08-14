@@ -1,0 +1,57 @@
+{
+  "filters": [
+    { "id": "all", "label": "All" },
+    { "id": "expenses", "label": "Expenses" },
+    { "id": "payments", "label": "Payments" },
+    { "id": "groups", "label": "Groups" }
+  ],
+  "activities": [
+    {
+      "date": "Today",
+      "activities": [
+        {
+          "id": "expense-1",
+          "type": "expense",
+          "category": "Food",
+          "amount": 600.0,
+          "paidBy": "John",
+          "currency": "INR",
+          "yourShare": 300.0,
+          "group": "Lunch Group",
+          "status": "pending",
+          "paymentMethod": "UPI",
+          "notes": "Team lunch at Big Chill"
+        },
+        {
+          "id": "payment-1",
+          "type": "payment",
+          "amount": 120.0,
+          "from": "You",
+          "to": "Sarah",
+          "currency": "INR",
+          "status": "completed",
+          "paymentMethod": "Bank Transfer",
+          "notes": "Movie tickets settlement"
+        }
+      ]
+    },
+    {
+      "date": "Yesterday",
+      "activities": [
+        {
+          "id": "expense-2",
+          "type": "expense",
+          "category": "Movie",
+          "amount": 500.0,
+          "paidBy": "You",
+          "currency": "INR",
+          "yourShare": 250.0,
+          "group": "Weekend Group",
+          "status": "settled",
+          "paymentMethod": "Cash",
+          "notes": "Oppenheimer IMAX"
+        }
+      ]
+    }
+  ]
+}

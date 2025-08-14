@@ -5,27 +5,24 @@ import Colors from '@/constants/Colors';
 import { useRouter } from 'expo-router';
 import { BlurView } from 'expo-blur';
 import { useState } from 'react';
-
-const LANGUAGES = [
-  { code: 'en', name: 'English' },
-  { code: 'es', name: 'Spanish' },
-  { code: 'fr', name: 'French' },
-  { code: 'de', name: 'German' },
-];
-
-const CURRENCIES = [
-  { code: 'USD', symbol: '$', name: 'US Dollar' },
-  { code: 'EUR', symbol: '€', name: 'Euro' },
-  { code: 'GBP', symbol: '£', name: 'British Pound' },
-  { code: 'INR', symbol: '₹', name: 'Indian Rupee' },
-];
+import { DataService } from '@/services/DataService';
 
 export default function LanguageCurrencyScreen() {
   const router = useRouter();
   const colorScheme = useColorScheme();
   const colors = Colors[colorScheme ?? 'light'];
-  const [selectedLanguage, setSelectedLanguage] = useState('en');
-  const [selectedCurrency, setSelectedCurrency] = useState('USD');
+
+  // Load data from service
+  const languages = DataService.getLanguages();
+  const currencies = DataService.getCurrencies();
+  const currentUser = DataService.getCurrentUser();
+
+  const [selectedLanguage, setSelectedLanguage] = useState(
+    currentUser.defaultLanguage
+  );
+  const [selectedCurrency, setSelectedCurrency] = useState(
+    currentUser.defaultCurrency
+  );
 
   return (
     <View style={[styles.container, { backgroundColor: colors.background }]}>
@@ -50,7 +47,7 @@ export default function LanguageCurrencyScreen() {
         <Text style={[styles.sectionTitle, { color: colors.text }]}>
           Language
         </Text>
-        {LANGUAGES.map((lang) => (
+        {languages.map((lang) => (
           <Pressable
             key={lang.code}
             style={({ pressed }) => [
@@ -76,7 +73,7 @@ export default function LanguageCurrencyScreen() {
         <Text style={[styles.sectionTitle, { color: colors.text }]}>
           Currency
         </Text>
-        {CURRENCIES.map((currency) => (
+        {currencies.map((currency) => (
           <Pressable
             key={currency.code}
             style={({ pressed }) => [

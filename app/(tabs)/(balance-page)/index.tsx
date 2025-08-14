@@ -13,32 +13,8 @@ import Animated, { FadeInDown, FadeInUp } from 'react-native-reanimated';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
-
-function AmountDisplay({
-  amount,
-  style,
-  showPrefix = true,
-  type,
-}: {
-  amount: number;
-  style?: any;
-  showPrefix?: boolean;
-  type?: 'get' | 'owe' | 'settled';
-}) {
-  const roundedAmount = Math.round(amount);
-  const amountString = roundedAmount.toLocaleString('en-IN');
-  const shouldSplit = amountString.length > 8;
-
-  if (shouldSplit) {
-    return (
-      <View style={styles.amountContainer}>
-        <Text style={[style, styles.amountText]}>₹{amountString}</Text>
-      </View>
-    );
-  }
-
-  return <Text style={[style]}>₹{amountString}</Text>;
-}
+import { DataService } from '@/services/DataService';
+import AmountDisplay from '@/components/AmountDisplay';
 
 export default function BalancesScreen() {
   const colorScheme = useColorScheme();
@@ -46,6 +22,9 @@ export default function BalancesScreen() {
   const { width } = useWindowDimensions();
   const isDesktop = width >= 768;
   const router = useRouter();
+
+  // Load data from service
+  const balanceData = DataService.getBalanceData();
 
   return (
     <ScrollView
@@ -62,8 +41,16 @@ export default function BalancesScreen() {
         ]}
       >
         {[
-          { label: 'You owe', amount: 2500.0, type: 'negative' },
-          { label: 'You get', amount: 6360.0, type: 'positive' },
+          {
+            label: 'You owe',
+            amount: balanceData.summary.youOwe,
+            type: 'negative',
+          },
+          {
+            label: 'You get',
+            amount: balanceData.summary.youGet,
+            type: 'positive',
+          },
         ].map((item, index) => (
           <Animated.View
             key={index}
@@ -104,39 +91,13 @@ export default function BalancesScreen() {
       </View>
 
       <View style={[styles.usersList, isDesktop && styles.usersListDesktop]}>
-        {[
-          { name: 'Aarush', amount: 180.0, type: 'get' as const },
-          { name: 'Adarsh S.', amount: 377.0, type: 'get' as const },
-          { name: 'Arnav Vats', amount: 60.0, type: 'get' as const },
-          {
-            name: 'Harleen',
-            amount: 2483.68,
-            type: 'get' as const,
-            transactions: [
-              { description: 'Non-group expense', amount: 2135.88 },
-              { description: 'The Big Chill', amount: 347.8 },
-            ],
-          },
-          { name: 'mehul', amount: 250.0, type: 'get' as const },
-          { name: 'Nipun PRAKASH', amount: 583.0, type: 'owe' as const },
-          {
-            name: 'Radhika',
-            amount: 4206.0,
-            type: 'get' as const,
-            transactions: [
-              { description: 'Non-group expense', amount: 3921.0 },
-              { description: 'kattt gayaaaa night', amount: 285.0 },
-            ],
-          },
-          { name: 'Shahzad', amount: 65.0, type: 'get' as const },
-          { name: 'Shashwat Singh', amount: 542.75, type: 'owe' as const },
-        ].map((user, index) => (
+        {balanceData.users.map((user, index) => (
           <Animated.View
             entering={FadeInUp.delay(200 * index).duration(800)}
             key={index}
           >
             <Pressable
-              onPress={() => router.push(`/user/${user.name}`)}
+              onPress={() => router.push(`/user/${user.id}`)}
               style={({ pressed }) => [
                 styles.userItem,
                 {

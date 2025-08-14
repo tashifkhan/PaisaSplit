@@ -12,6 +12,7 @@ import { Ionicons } from '@expo/vector-icons';
 import Colors from '@/constants/Colors';
 import { useState, useRef, useMemo } from 'react';
 import { useRouter } from 'expo-router';
+import { DataService } from '@/services/DataService';
 
 export default function ActivityScreen() {
   const colorScheme = useColorScheme();
@@ -21,12 +22,9 @@ export default function ActivityScreen() {
   const [searchQuery, setSearchQuery] = useState('');
   const scrollY = useRef(new Animated.Value(0)).current;
 
-  const filters = [
-    { id: 'all', label: 'All' },
-    { id: 'expenses', label: 'Expenses' },
-    { id: 'payments', label: 'Payments' },
-    { id: 'groups', label: 'Groups' },
-  ];
+  // Load data from service
+  const activityData = DataService.getActivityData();
+  const filters = activityData.filters;
 
   const headerOpacity = scrollY.interpolate({
     inputRange: [0, 60],
@@ -34,52 +32,7 @@ export default function ActivityScreen() {
     extrapolate: 'clamp',
   });
 
-  const activities = [
-    {
-      date: 'Today',
-      activities: [
-        {
-          type: 'expense',
-          category: 'Food',
-          amount: 600.0,
-          paidBy: 'John',
-          currency: 'INR',
-          yourShare: 300.0,
-          group: 'Lunch Group',
-          status: 'pending',
-          paymentMethod: 'UPI',
-          notes: 'Team lunch at Big Chill',
-        },
-        {
-          type: 'payment',
-          amount: 120.0,
-          from: 'You',
-          to: 'Sarah',
-          currency: 'INR',
-          status: 'completed',
-          paymentMethod: 'Bank Transfer',
-          notes: 'Movie tickets settlement',
-        },
-      ],
-    },
-    {
-      date: 'Yesterday',
-      activities: [
-        {
-          type: 'expense',
-          category: 'Movie',
-          amount: 500.0,
-          paidBy: 'You',
-          currency: 'INR',
-          yourShare: 250.0,
-          group: 'Weekend Group',
-          status: 'settled',
-          paymentMethod: 'Cash',
-          notes: 'Oppenheimer IMAX',
-        },
-      ],
-    },
-  ];
+  const activities = activityData.activities;
 
   const filteredActivities = useMemo(() => {
     return activities
@@ -187,7 +140,7 @@ export default function ActivityScreen() {
                   <Pressable
                     key={activityIndex}
                     onPress={() => {
-                      // TODO: Navigate to activity detail screen
+                      // Navigate to activity detail screen
                       router.push(`/activity/${activity.id}`);
                     }}
                     style={({ pressed }) => [

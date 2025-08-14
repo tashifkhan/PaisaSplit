@@ -7,91 +7,25 @@ import { useState } from 'react';
 import { useRouter } from 'expo-router';
 import { BlurView } from 'expo-blur';
 import Colors from '@/constants/Colors';
-
-const mockData = {
-  annual: {
-    total: 30571.56,
-    categories: [
-      { name: 'Food', amount: 10203.0, color: '#FF6B6B', icon: 'restaurant' },
-      { name: 'Transport', amount: 2814.0, color: '#4ECDC4', icon: 'car' },
-    ],
-    people: [
-      { name: 'John', amount: 8540.25, color: '#FFB6B6' },
-      { name: 'Sarah', amount: 6234.5, color: '#B6FFB6' },
-      { name: 'Mike', amount: 4521.33, color: '#B6B6FF' },
-    ],
-    groups: [
-      { name: 'Roommates', amount: 12458.55, color: '#FFD700' },
-      { name: 'Office', amount: 8350.0, color: '#98FB98' },
-      { name: 'Family', amount: 4521.33, color: '#DDA0DD' },
-    ],
-  },
-  monthly: {
-    total: 2547.63,
-    categories: [
-      { name: 'Food', amount: 850.25, color: '#FF6B6B', icon: 'restaurant' },
-      { name: 'Transport', amount: 234.5, color: '#4ECDC4', icon: 'car' },
-      { name: 'Shopping', amount: 654.33, color: '#45B7D1', icon: 'cart' },
-      { name: 'Bills', amount: 458.55, color: '#96CEB4', icon: 'receipt' },
-      {
-        name: 'Entertainment',
-        amount: 350.0,
-        color: '#FFEEAD',
-        icon: 'game-controller',
-      },
-    ],
-    people: [
-      { name: 'John', amount: 711.68, color: '#FFB6B6' },
-      { name: 'Sarah', amount: 519.54, color: '#B6FFB6' },
-      { name: 'Mike', amount: 376.77, color: '#B6B6FF' },
-    ],
-    groups: [
-      { name: 'Roommates', amount: 1038.21, color: '#FFD700' },
-      { name: 'Office', amount: 695.83, color: '#98FB98' },
-      { name: 'Family', amount: 376.77, color: '#DDA0DD' },
-    ],
-  },
-  transactions: [
-    {
-      id: 1,
-      title: 'Grocery Shopping',
-      amount: 85.5,
-      date: '2024-01-15',
-      category: 'Food',
-    },
-    {
-      id: 2,
-      title: 'Uber Ride',
-      amount: 24.99,
-      date: '2024-01-15',
-      category: 'Transport',
-    },
-    {
-      id: 3,
-      title: 'Netflix',
-      amount: 15.99,
-      date: '2024-01-14',
-      category: 'Entertainment',
-    },
-    {
-      id: 4,
-      title: 'Electric Bill',
-      amount: 120.0,
-      date: '2024-01-13',
-      category: 'Bills',
-    },
-  ],
-};
+import { DataService } from '@/services/DataService';
 
 export default function SpendingReportScreen() {
   const colorScheme = useColorScheme();
   const colors = Colors[colorScheme ?? 'light'];
   const screenWidth = Dimensions.get('window').width;
   const [isAnnual, setIsAnnual] = useState(false);
-  const [currency, setCurrency] = useState<'USD' | 'INR'>('USD');
   const router = useRouter();
 
-  const currentData = isAnnual ? mockData.annual : mockData.monthly;
+  // Load data from service
+  const spendingReportData = DataService.getSpendingReportData();
+  const currentUser = DataService.getCurrentUser();
+  const defaultCurrency = currentUser.defaultCurrency;
+  const [currency, setCurrency] = useState<string>(defaultCurrency);
+
+  const currentData = isAnnual
+    ? spendingReportData.spendingData.annual
+    : spendingReportData.spendingData.monthly;
+  const recentTransactions = spendingReportData.recentTransactions;
 
   const chartConfig = {
     backgroundGradientFrom: colors.background,
@@ -243,11 +177,11 @@ export default function SpendingReportScreen() {
           Total Spending
         </Text>
         <Text style={[styles.totalAmount, { color: colors.text }]}>
-          {currency === 'USD' ? '$' : '₹'}
-          {(currency === 'USD'
-            ? currentData.total
-            : currentData.total * 83
-          ).toLocaleString()}
+          {DataService.getCurrencySymbol(currency)}
+          {DataService.formatAmount(
+            DataService.convertCurrency(currentData.total, 'INR', currency),
+            currency
+          )}
         </Text>
       </View>
 
@@ -259,7 +193,7 @@ export default function SpendingReportScreen() {
         <Text style={[styles.sectionTitle, { color: colors.text }]}>
           Recent Transactions
         </Text>
-        {mockData.transactions.map((transaction) => (
+        {recentTransactions.map((transaction) => (
           <View
             key={transaction.id}
             style={[
@@ -280,7 +214,15 @@ export default function SpendingReportScreen() {
               </Text>
             </View>
             <Text style={[styles.transactionAmount, { color: colors.text }]}>
-              -${transaction.amount.toFixed(2)}
+              -{DataService.getCurrencySymbol(currency)}
+              {DataService.formatAmount(
+                DataService.convertCurrency(
+                  transaction.amount,
+                  'INR',
+                  currency
+                ),
+                currency
+              )}
             </Text>
           </View>
         ))}

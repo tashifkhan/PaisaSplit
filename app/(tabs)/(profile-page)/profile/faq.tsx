@@ -11,57 +11,17 @@ import {
 import { useColorScheme } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import Colors from '@/constants/Colors';
+import { DataService } from '@/services/DataService';
 
 export default function FAQScreen() {
   const router = useRouter();
   const colorScheme = useColorScheme();
   const colors = Colors[colorScheme ?? 'light'];
 
-  const socialLinks = [
-    {
-      icon: 'logo-github',
-      title: 'GitHub',
-      url: 'https://github.com/tashifkhan/PaisaSplit',
-    },
-    {
-      icon: 'logo-linkedin',
-      title: 'LinkedIn',
-      url: 'https://www.linkedin.com/in/tashif-ahmad-khan-982304244/',
-    },
-    {
-      icon: 'logo-instagram',
-      title: 'Instagram',
-      url: 'https://instagram.com/khan_tashif',
-    },
-    {
-      icon: 'globe-outline',
-      title: 'Portfolio',
-      url: 'https://portfolio.tashif.codes',
-    },
-  ];
-
-  const faqs = [
-    {
-      question: 'What is PaisaSplit?',
-      answer:
-        'PaisaSplit is a modern expense sharing app that helps you track and split expenses with friends, family, and roommates.',
-    },
-    {
-      question: 'How do I create a group?',
-      answer:
-        'Tap on the Groups tab and click the "+" button to create a new group. Add members and start splitting expenses!',
-    },
-    {
-      question: 'How are expenses calculated?',
-      answer:
-        'PaisaSplit uses smart algorithms to ensure fair expense distribution. You can split equally or by custom percentages.',
-    },
-    {
-      question: 'Is my data secure?',
-      answer:
-        'Yes! We use industry-standard encryption to protect your data and never share it with third parties.',
-    },
-  ];
+  // Load data from service
+  const supportData = DataService.getSupportData();
+  const socialLinks = supportData.socialLinks;
+  const faqs = supportData.faqs;
 
   return (
     <ScrollView
@@ -91,7 +51,7 @@ export default function FAQScreen() {
         <View style={styles.socialLinks}>
           {socialLinks.map((link, index) => (
             <Pressable
-              key={index}
+              key={link.id}
               style={({ pressed }) => [
                 styles.socialButton,
                 {
@@ -115,7 +75,7 @@ export default function FAQScreen() {
         <Text style={[styles.sectionTitle, { color: colors.text }]}>FAQ</Text>
         {faqs.map((faq, index) => (
           <View
-            key={index}
+            key={faq.id}
             style={[
               styles.faqItem,
               {

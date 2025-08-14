@@ -1,0 +1,82 @@
+{
+  "summary": {
+    "youOwe": 2500.0,
+    "youGet": 6360.0
+  },
+  "users": [
+    {
+      "id": "aarush",
+      "name": "Aarush",
+      "amount": 180.0,
+      "type": "get"
+    },
+    {
+      "id": "adarsh-s",
+      "name": "Adarsh S.",
+      "amount": 377.0,
+      "type": "get"
+    },
+    {
+      "id": "arnav-vats",
+      "name": "Arnav Vats",
+      "amount": 60.0,
+      "type": "get"
+    },
+    {
+      "id": "harleen",
+      "name": "Harleen",
+      "amount": 2483.68,
+      "type": "get",
+      "transactions": [
+        {
+          "description": "Non-group expense",
+          "amount": 2135.88
+        },
+        {
+          "description": "The Big Chill",
+          "amount": 347.8
+        }
+      ]
+    },
+    {
+      "id": "mehul",
+      "name": "mehul",
+      "amount": 250.0,
+      "type": "get"
+    },
+    {
+      "id": "nipun-prakash",
+      "name": "Nipun PRAKASH",
+      "amount": 583.0,
+      "type": "owe"
+    },
+    {
+      "id": "radhika",
+      "name": "Radhika",
+      "amount": 4206.0,
+      "type": "get",
+      "transactions": [
+        {
+          "description": "Non-group expense",
+          "amount": 3921.0
+        },
+        {
+          "description": "kattt gayaaaa night",
+          "amount": 285.0
+        }
+      ]
+    },
+    {
+      "id": "shahzad",
+      "name": "Shahzad",
+      "amount": 65.0,
+      "type": "get"
+    },
+    {
+      "id": "shashwat-singh",
+      "name": "Shashwat Singh",
+      "amount": 542.75,
+      "type": "owe"
+    }
+  ]
+}

@@ -1,0 +1,62 @@
+{
+  "categories": [
+    {
+      "id": "food",
+      "name": "Food & Dining",
+      "icon": "restaurant",
+      "color": "#FF6B6B"
+    },
+    {
+      "id": "movie",
+      "name": "Entertainment",
+      "icon": "film",
+      "color": "#4ECDC4"
+    },
+    {
+      "id": "transport",
+      "name": "Transportation",
+      "icon": "car",
+      "color": "#45B7D1"
+    },
+    {
+      "id": "shopping",
+      "name": "Shopping",
+      "icon": "bag",
+      "color": "#96CEB4"
+    },
+    {
+      "id": "utilities",
+      "name": "Utilities",
+      "icon": "flash",
+      "color": "#FFEAA7"
+    },
+    {
+      "id": "travel",
+      "name": "Travel",
+      "icon": "airplane",
+      "color": "#DDA0DD"
+    }
+  ],
+  "paymentMethods": [
+    {
+      "id": "upi",
+      "name": "UPI",
+      "icon": "phone-portrait"
+    },
+    {
+      "id": "cash",
+      "name": "Cash",
+      "icon": "cash"
+    },
+    {
+      "id": "card",
+      "name": "Credit/Debit Card",
+      "icon": "card"
+    },
+    {
+      "id": "bank-transfer",
+      "name": "Bank Transfer",
+      "icon": "business"
+    }
+  ]
+}

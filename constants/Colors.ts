@@ -10,6 +10,7 @@ export default {
     tabIconSelected: '#1AACA5',
     positive: '#248A3D',
     negative: '#D70015',
+    textMuted: '#6c757d', 
   },
   dark: {
     text: '#fff',
@@ -19,5 +20,6 @@ export default {
     tabIconSelected: tintColorDark,
     positive: '#32D74B',
     negative: '#FF453A',
+    textMuted: '#98a1a9',
   },
 };

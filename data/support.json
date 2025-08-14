@@ -1,0 +1,60 @@
+{
+  "socialLinks": [
+    {
+      "id": "github",
+      "icon": "logo-github",
+      "title": "GitHub",
+      "url": "https://github.com/tashifkhan/PaisaSplit"
+    },
+    {
+      "id": "linkedin",
+      "icon": "logo-linkedin",
+      "title": "LinkedIn",
+      "url": "https://www.linkedin.com/in/tashif-ahmad-khan-982304244/"
+    },
+    {
+      "id": "instagram",
+      "icon": "logo-instagram",
+      "title": "Instagram",
+      "url": "https://instagram.com/khan_tashif"
+    },
+    {
+      "id": "portfolio",
+      "icon": "globe-outline",
+      "title": "Portfolio",
+      "url": "https://portfolio.tashif.codes"
+    }
+  ],
+  "faqs": [
+    {
+      "id": "what-is-paisasplit",
+      "question": "What is PaisaSplit?",
+      "answer": "PaisaSplit is a modern expense sharing app that helps you track and split expenses with friends, family, and roommates."
+    },
+    {
+      "id": "create-group",
+      "question": "How do I create a group?",
+      "answer": "Tap on the Groups tab and click the \"+\" button to create a new group. Add members and start splitting expenses!"
+    },
+    {
+      "id": "expense-calculation",
+      "question": "How are expenses calculated?",
+      "answer": "PaisaSplit uses smart algorithms to ensure fair expense distribution. You can split equally or by custom percentages."
+    },
+    {
+      "id": "data-security",
+      "question": "Is my data secure?",
+      "answer": "Yes! We use industry-standard encryption to protect your data and never share it with third parties."
+    },
+    {
+      "id": "export-data",
+      "question": "Can I export my data?",
+      "answer": "Yes, you can export your transaction history and group data in CSV format from the settings menu."
+    },
+    {
+      "id": "offline-mode",
+      "question": "Does the app work offline?",
+      "answer": "Basic functionality works offline, but you'll need an internet connection to sync data across devices."
+    }
+  ]
+}
